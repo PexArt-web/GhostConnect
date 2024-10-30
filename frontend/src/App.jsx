@@ -1,9 +1,23 @@
+import {
+  createBrowserRouter,
+  createRoutesFromElements,
+  Route,
+  RouterProvider,
+} from "react-router-dom";
+import Splash from "./Pages/SplashScreen/Splash";
 function App() {
-  return <>
-  <h1 className="text-3xl font-bold underline text-blue-400">
-      Hello world!
-    </h1>
-  </>;
+  const router = createBrowserRouter(
+    createRoutesFromElements(
+      <Route path="/">
+        <Route index element={<Splash />} />
+      </Route>
+    )
+  );
+  return (
+    <>
+      <RouterProvider router={router} />
+    </>
+  );
 }
 
 export default App;
