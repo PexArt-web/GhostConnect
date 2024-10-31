@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { FiPlusCircle, FiSend } from "react-icons/fi";
 
-const MainChat = () => {
+const MainGroupChat = () => {
   const selectedUserData = {
     id: 1,
     name: "Alice",
@@ -81,4 +81,4 @@ const MainChat = () => {
   );
 };
 
-export default MainChat;
+export default MainGroupChat;

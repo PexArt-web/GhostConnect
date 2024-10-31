@@ -1,4 +1,6 @@
-const Lobby = () => {
+import { useNavigate } from "react-router-dom";
+
+const GroupLobby = () => {
   // Example count of online users
   const onlineUsersData = [
     { id: 1, name: "Jane Doe", avatar: "https://via.placeholder.com/40" },
@@ -7,6 +9,11 @@ const Lobby = () => {
   ];
 
   const onlineCount = onlineUsersData.length;
+  
+  const navigate = useNavigate()
+  const handleClick = () => {
+    navigate("/lobby-layout/group-chat");
+  }
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-800 text-white px-6">
@@ -37,7 +44,8 @@ const Lobby = () => {
       {/* Enter Chat Button */}
       <button
         className="w-full max-w-xs py-3 bg-blue-500 text-white rounded-lg font-semibold hover:bg-blue-600 transition duration-200"
-        onClick={() => alert("Navigating to chat...")}
+        // onClick={() => alert("Navigating to chat...")}
+        onClick={handleClick}
       >
         Enter Chat Room ➔
       </button>
@@ -45,4 +53,4 @@ const Lobby = () => {
   );
 };
 
-export default Lobby;
+export default GroupLobby;
