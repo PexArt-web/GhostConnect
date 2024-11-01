@@ -3,6 +3,7 @@ const Schema = mongoose.Schema;
 const validator = require("validator");
 const bcrypt = require("bcryptjs");
 const saltRound = 10;
+const MaxAttempts = 3
 
 const userSchema = new Schema(
   {
@@ -26,7 +27,7 @@ const userSchema = new Schema(
       select: false,
     },
     loginAttempts:{type: Number, default: 0},
-    
+
   },
   { timestamps: true }
 );
@@ -82,6 +83,7 @@ userSchema.statics.login = async function (username, email, password) {
       existingUser.password
     );
     if (!bcryptPasswordCheck) {
+        existingUser.loginAttempts 
       throw Error("Invalid password");
     }
     return existingUser;
