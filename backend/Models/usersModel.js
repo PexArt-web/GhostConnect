@@ -8,15 +8,9 @@ const userSchema = new Schema(
   {
     username: {
       type: String,
-      required: [true, "Name is required"],
-      minlength: [3, "Name must be at least 3 characters long"],
-      maxlength: [50, "Name must be at most 50 characters long"],
-      validate: {
-        validator: function (value) {
-          return /^[a-zA-Z\s]+$/.test(value);
-        },
-        message: "Name can only contain letters and spaces",
-      },
+      required: [true, "Username is required"],
+      minlength: [3, "Username must be at least 3 characters long"],
+      maxlength: [50, "Username must be at most 50 characters long"],
     },
     email: {
       type: String,
@@ -31,6 +25,8 @@ const userSchema = new Schema(
       minlength: [8, "Password must be at least 8 characters long"],
       select: false,
     },
+    loginAttempts:{type: Number, default: 0},
+    
   },
   { timestamps: true }
 );
@@ -72,12 +68,24 @@ userSchema.statics.signup = async function (username, email, password) {
 
 // login method
 
-userSchema.statics.login = async function(username, email, password){
-   try {
-    if(!username && !email || !password){
-        throw Error("All fields are required");
+userSchema.statics.login = async function (username, email, password) {
+  try {
+    if ((!username && !email) || !password) {
+      throw Error("All fields are required");
     }
-   } catch (error) {
+    const existingUser = await this.findOne({ email });
+    if (!existingUser) {
+      throw Error("Invalid username or password");
+    }
+    const bcryptPasswordCheck = await bcrypt.compare(
+      password,
+      existingUser.password
+    );
+    if (!bcryptPasswordCheck) {
+      throw Error("Invalid password");
+    }
+    return existingUser;
+  } catch (error) {
     throw error;
-   }
-}
+  }
+};
