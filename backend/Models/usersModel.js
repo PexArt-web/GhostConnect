@@ -2,8 +2,9 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 const validator = require("validator");
 const bcrypt = require("bcryptjs");
-const saltRound = 10;
-const MaxAttempts = 3
+const saltRound = process.env.SALT_ROUND;
+const MaxAttempts = 3;
+const lockTimeOut = 30 * 60 * 1000; // 30 minutes lockOut
 
 const userSchema = new Schema(
   {
@@ -26,8 +27,8 @@ const userSchema = new Schema(
       minlength: [8, "Password must be at least 8 characters long"],
       select: false,
     },
-    loginAttempts:{type: Number, default: 0},
-
+    loginAttempts: { type: Number, default: 0 },
+    lockUntil: { type: Date, default: null },
   },
   { timestamps: true }
 );
@@ -78,14 +79,29 @@ userSchema.statics.login = async function (username, email, password) {
     if (!existingUser) {
       throw Error("Invalid username or password");
     }
+
+    // check if user is locked
+
+    if (existingUser.isLocked) {
+      throw Error("Account is temporarily locked. Try again later.");
+    }
+
     const bcryptPasswordCheck = await bcrypt.compare(
       password,
       existingUser.password
     );
     if (!bcryptPasswordCheck) {
-        existingUser.loginAttempts 
+      if (existingUser.loginAttempts >= MaxAttempts) {
+        existingUser.lockUntil = Date.now() + lockTimeOut;
+        throw Error("Too many failed login attempts. Please try again later.");
+      }
+      existingUser.loginAttempts += 1;
+      await existingUser.save();
       throw Error("Invalid password");
     }
+    existingUser.loginAttempts = 0;
+    existingUser.lockUntil = null;
+    await existingUser.save();
     return existingUser;
   } catch (error) {
     throw error;
