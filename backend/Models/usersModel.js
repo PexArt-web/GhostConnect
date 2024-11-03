@@ -75,9 +75,7 @@ userSchema.statics.login = async function (username, email, password) {
     if ((!username && !email) || !password) {
       throw Error("All fields are required");
     }
-    const query = email ? email: username;
-    console.log(query, "query");
-    const existingUser = await this.findOne({ email });
+    const existingUser = await this.findOne({ $or:[{email}, {username}] });
     if (!existingUser) {
       throw Error("Invalid username or password");
     }
