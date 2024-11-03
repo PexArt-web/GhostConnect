@@ -1,3 +1,5 @@
-export const onConnect = (socket) => {
+const onConnect = (socket) => {
     
 }
+
+module.exports = { onConnect }

@@ -1,0 +1,32 @@
+require("dotenv").config();
+const { log } = console;
+const express = require("express");
+const { onConnect } = require("../Services/weBSocket");
+const { connectDB } = require("../Config/database");
+const userRoutes = require("../Routes/userRoutes");
+const morgan = require("morgan");
+const app = express();
+const port = process.env.PORT || 4000;
+app.use(express.json());
+app.use(morgan("dev"))
+app.use("/api/user", userRoutes);
+app.use((req, res, next) => {
+  res.status(404).json({ error: "Route not found" });
+});
+// Database and Server configuration
+connectDB((error) => {
+  if (!error) {
+    const server = app.listen(port, () => {
+      log(`database and server started at port  + ${port}`);
+    });
+    // weBSocket Connection
+    const io = require("socket.io")(server);
+    io.on("connection", onConnect);
+    //
+    return;
+  } else {
+    log(`Error connecting to database:, ${error}`);
+    process.exit(1);
+  }
+});
+
