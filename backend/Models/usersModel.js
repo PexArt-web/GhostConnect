@@ -24,8 +24,7 @@ const userSchema = new Schema(
     password: {
       type: String,
       required: [true, "Password is required"],
-      minlength: [8, "Password must be at least 8 characters long"],
-      select: false,
+      minlength: [8, "Password must be at least 8 characters long"]
     },
     loginAttempts: { type: Number, default: 0 },
     lockUntil: { type: Date, default: null },
@@ -76,9 +75,9 @@ userSchema.statics.login = async function (username, email, password) {
     if ((!username && !email) || !password) {
       throw Error("All fields are required");
     }
-    const query = email ? email : username;
+    const query = email ? email: username;
     console.log(query, "query");
-    const existingUser = await this.findOne({ query });
+    const existingUser = await this.findOne({ email });
     if (!existingUser) {
       throw Error("Invalid username or password");
     }
