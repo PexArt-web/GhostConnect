@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Form, useNavigate } from "react-router-dom";
 
 const Auth = () => {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -17,7 +17,7 @@ const Auth = () => {
           {isSignUp ? "Create an Account" : "Welcome Back!"}
         </h2>
 
-        <form>
+        <Form>
           {isSignUp && (
             <div className="mb-4">
               <label className="block text-gray-600 mb-2" htmlFor="name">
@@ -63,7 +63,7 @@ const Auth = () => {
           >
             {isSignUp ? "Sign Up" : "Log In"}
           </button>
-        </form>
+        </Form>
 
         <p className="text-center mt-4 text-gray-600">
           {isSignUp ? "Already have an account?" : "New to GhostConnect?"}{" "}
