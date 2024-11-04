@@ -1,4 +1,5 @@
 const validator = require("validator");
+const bcrypt = require("bcryptjs");
 const User = require("../Blueprint/userModel");
 const saltRound = parseInt(process.env.SALT_ROUND);
 const signup = async (username, email, password) => {
