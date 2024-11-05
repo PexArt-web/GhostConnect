@@ -11,6 +11,6 @@ export const loginAction = async ({ request }) => {
 
     return { user: data };
   } catch (error) {
-    return error;
+    return { error: error.message };
   }
 };
