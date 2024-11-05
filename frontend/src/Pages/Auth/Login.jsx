@@ -1,9 +1,18 @@
-import { Form, useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import { Form, NavLink, useActionData, useNavigate } from "react-router-dom";
+import { useAuthContext } from "../../Hooks/useAuthContext";
 
 const Login = () => {
   const navigate = useNavigate();
-
-  const handleClick = (e) => {
+  const actionData = useActionData()
+  console.log(actionData, 'login')
+  const { dispatch } = useAuthContext()
+    useEffect(()=>{
+      if(actionData && actionData?.user){
+        dispatch({ type: 'LOGIN', payload: actionData.user });
+      }
+    },[actionData, dispatch])
+  const handleSubmit = (e) => {
     e.preventDefault();
     return navigate("/lobby-layout");
   };
@@ -42,16 +51,17 @@ const Login = () => {
           <button
             type="submit"
             className="w-full py-3 bg-blue-500 text-white rounded-lg font-semibold hover:bg-blue-600 transition duration-200"
-            onClick={handleClick}
+            onClick={handleSubmit}
           >
             Log In
           </button>
+          {actionData?.error && <p style={{ color: 'red' }}>{actionData.error}</p>}
         </Form>
         <p className="text-center mt-4 text-gray-600">
           New to GhostConnect?
-          <span className="text-blue-500 hover:underline cursor-pointer font-medium">
+          <NavLink to='/get-started' className="text-blue-500 hover:underline cursor-pointer font-medium">
             Sign Up
-          </span>
+          </NavLink>
         </p>
       </div>
     </div>

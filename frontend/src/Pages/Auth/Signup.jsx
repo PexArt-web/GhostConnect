@@ -1,7 +1,17 @@
-import { Form, useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import { Form, NavLink, useActionData, useNavigate } from "react-router-dom";
+import { useAuthContext } from "../../Hooks/useAuthContext";
 
 const Signup = () => {
   const navigate = useNavigate();
+  const { dispatch } = useAuthContext()
+  const actionData = useActionData() 
+    useEffect(()=>{
+        if (actionData && actionData?.user) {
+            dispatch({ type: 'LOGIN', payload: actionData.user });
+        }
+    },[actionData, dispatch])
+
   const handleSubmit = (e) => {
     e.preventDefault();
     navigate("/login");
@@ -15,14 +25,14 @@ const Signup = () => {
 
         <Form>
           <div className="mb-4">
-            <label className="block text-gray-600 mb-2" htmlFor="name">
-              Name
+            <label className="block text-gray-600 mb-2" htmlFor="username">
+              Username
             </label>
             <input
               type="text"
-              id="name"
+              id="username"
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Your Name"
+              placeholder="Your username"
             />
           </div>
 
@@ -57,13 +67,14 @@ const Signup = () => {
           >
             Sign Up
           </button>
+          {actionData?.error && <p style={{ color: 'red' }}>{actionData.error}</p>}
         </Form>
 
         <p className="text-center mt-4 text-gray-600">
           Already have an account?
-          <span className="text-blue-500 hover:underline cursor-pointer font-medium">
+          <NavLink to='/login' className="text-blue-500 hover:underline cursor-pointer font-medium">
             Log In
-          </span>
+          </NavLink>
         </p>
       </div>
     </div>
