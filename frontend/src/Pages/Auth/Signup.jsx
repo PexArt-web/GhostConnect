@@ -7,6 +7,8 @@ import {
   useNavigation,
 } from "react-router-dom";
 import { useAuthContext } from "../../Hooks/useAuthContext";
+import SharedInput from "@/shared/component/SharedInput";
+import SharedButton from "@/shared/component/SharedButton";
 
 const Signup = () => {
   const navigation = useNavigation();
@@ -32,48 +34,26 @@ const Signup = () => {
             <label className="block text-gray-600 mb-2" htmlFor="username">
               Username
             </label>
-            <input
-              type="text"
-              id="username"
-              name="username"
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Your username"
-            />
+            <SharedInput type={"text"} id={"username"} name={"username"} className={"w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"}
+            placeholder={"Your Username"}/>
           </div>
 
           <div className="mb-4">
             <label className="block text-gray-600 mb-2" htmlFor="email">
               Email
             </label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Email Address"
-            />
+            <SharedInput type={"email"} id={"email"} name={"email"} className={"w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"}
+            placeholder={"Input Your Valid Email"}/>
           </div>
 
           <div className="mb-6">
             <label className="block text-gray-600 mb-2" htmlFor="password">
               Password
             </label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Password"
-            />
+            <SharedInput type={"password"} id={"password"} name={"password"} className={"w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"}
+            placeholder={"Your Password"}/>
           </div>
-
-          <button
-            type="submit"
-            className="w-full py-3 bg-blue-500 text-white rounded-lg font-semibold hover:bg-blue-600 transition duration-200"
-            disabled={navigation.state === "submitting"}
-          >
-            {navigation.state === "submitting" ? "Please wait..." : "Sign Up"}
-          </button>
+          <SharedButton type={"submit"} className={"w-full py-3 bg-blue-500 text-white rounded-lg font-semibold hover:bg-blue-600 transition duration-200"} disabled={navigation.state === "submitting"} label={  navigation.state === "submitting" ? "Please wait..." : "Sign Up"}/>
           {actionData?.error && (
             <p style={{ color: "red" }} className="text-center">
               {actionData.error}

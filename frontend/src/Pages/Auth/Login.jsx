@@ -7,6 +7,8 @@ import {
   useNavigation,
 } from "react-router-dom";
 import { useAuthContext } from "../../Hooks/useAuthContext";
+import SharedInput from "@/shared/component/SharedInput";
+import SharedButton from "@/shared/component/SharedButton";
 
 const Login = () => {
   const navigation = useNavigation();
@@ -33,14 +35,16 @@ const Login = () => {
             <label className="block text-gray-600 mb-2" htmlFor="email">
               Email
             </label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              autoComplete="email"
-              required
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Email Address"
+            <SharedInput
+              type={"email"}
+              id={"email"}
+              name={"email"}
+              autoComplete={"email"}
+              required={true}
+              placeholder={"Email Address"}
+              className={
+                "w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              }
             />
           </div>
 
@@ -48,24 +52,28 @@ const Login = () => {
             <label className="block text-gray-600 mb-2" htmlFor="password">
               Password
             </label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              autoComplete="current-password"
-              required
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Password"
+            <SharedInput
+              type={"password"}
+              id={"password"}
+              name={"password"}
+              autoComplete={"current-password"}
+              required={true}
+              placeholder={"password"}
+              className={
+                "w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              }
             />
           </div>
-
-          <button
-            type="submit"
-            className="w-full py-3 bg-blue-500 text-white rounded-lg font-semibold hover:bg-blue-600 transition duration-200"
+          <SharedButton
+            type={"submit"}
+            className={
+              "w-full py-3 bg-blue-500 text-white rounded-lg font-semibold hover:bg-blue-600 transition duration-200"
+            }
             disabled={navigation.state === "submitting"}
-          >
-            {navigation.state === "submitting" ? "Please wait..." : "Log In"}
-          </button>
+            label={
+              navigation.state === "submitting" ? "Please wait..." : "Log In"
+            }
+          />
           {actionData?.error && (
             <p style={{ color: "red" }} className="text-center">
               {actionData.error}

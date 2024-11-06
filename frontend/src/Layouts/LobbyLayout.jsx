@@ -1,7 +1,10 @@
+import { useAuthContext } from "@/Hooks/useAuthContext";
 import { Outlet, useNavigate } from "react-router-dom";
 
 const LobbyLayout = () => {
   const navigate = useNavigate();
+  const { user } = useAuthContext()
+  console.log(user, "lobby user")
 
   const handlePrivateChat = () => {
     navigate("private-chat-lobby");

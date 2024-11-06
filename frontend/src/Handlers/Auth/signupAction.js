@@ -1,14 +1,17 @@
 import { signupService } from "../../Utils/Auth/signupService";
+import { signUpSchema} from "../Schemas/signUpSchema";
 
 export const signupAction = async ({ request }) => {
   const formData = await request.formData();
   const username = formData.get("username");
   const email = formData.get("email");
   const password = formData.get("password");
-  console.log(username, email, password, "formData: sign" + formData);
   try {
+    signUpSchema.parse({ username, email, password });
+    if(!username || !email || !password){
+      throw Error("All fields are required");
+    }
     const data = await signupService(username, email, password);
-
     return { user: data };
   } catch (error) {
     return { error: error.message };
