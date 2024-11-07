@@ -1,7 +1,8 @@
+import { requireAuth } from "@/Utils/Auth/middleware/requireAuth";
 import { useNavigate } from "react-router-dom";
 
 const GroupLobby = () => {
-  // Example count of online users
+  requireAuth()
   const onlineUsersData = [
     { id: 1, name: "Jane Doe", avatar: "https://via.placeholder.com/40" },
     { id: 2, name: "John Smith", avatar: "https://via.placeholder.com/40" },

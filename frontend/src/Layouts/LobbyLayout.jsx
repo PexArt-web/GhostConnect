@@ -5,9 +5,9 @@ import { requireAuth } from "@/Utils/Auth/middleware/requireAuth";
 import { Outlet, useNavigate } from "react-router-dom";
 
 const LobbyLayout = () => {
+  requireAuth();
   const navigate = useNavigate();
   const { user, dispatch } = useAuthContext();
-  requireAuth();
   const handlePrivateChat = () => {
     navigate("private-chat-lobby");
   };
@@ -16,9 +16,10 @@ const LobbyLayout = () => {
     navigate("group-chat-lobby");
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     dispatch({ type: "LOGOUT" });
-    logoutService();
+    console.log("logged out", user);
+    await logoutService();
     navigate("/", { replace: true });
   };
 
@@ -48,7 +49,7 @@ const LobbyLayout = () => {
 
         <div className="flex-grow"></div>
         <SharedButton
-          onClick={handleLogout}
+          handleClick={handleLogout}
           className={"bg-red-500 hover:bg-red-600 py-2 px-4 rounded mt-auto"}
           label={"Log Out"}
         />

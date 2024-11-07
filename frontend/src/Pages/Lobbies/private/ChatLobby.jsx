@@ -1,8 +1,10 @@
+import { requireAuth } from "@/Utils/Auth/middleware/requireAuth";
 import { useState } from "react";
 import { FiPlus } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 
 const ChatLobby = () => {
+  requireAuth()
   const navigate = useNavigate();
   const [selectedUser, setSelectedUser] = useState(null);
 

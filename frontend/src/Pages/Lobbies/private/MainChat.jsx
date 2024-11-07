@@ -1,7 +1,9 @@
+import { requireAuth } from "@/Utils/Auth/middleware/requireAuth";
 import { useState } from "react";
 import { FiPlusCircle, FiSend } from "react-icons/fi";
 
 const MainGroupChat = () => {
+  requireAuth()
   const selectedUserData = {
     id: 1,
     name: "Alice",

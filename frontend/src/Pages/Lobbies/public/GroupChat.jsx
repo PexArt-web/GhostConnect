@@ -1,13 +1,15 @@
+import { requireAuth } from "@/Utils/Auth/middleware/requireAuth";
 import { useState } from "react";
 import { FiSend, FiUsers } from "react-icons/fi";
 
 const GroupChat = () => {
-    const groupMembersData = [
-        { id: 1, name: "Alice", avatar: "https://via.placeholder.com/40" },
-        { id: 2, name: "Bob", avatar: "https://via.placeholder.com/40" },
-        { id: 3, name: "Charlie", avatar: "https://via.placeholder.com/40" },
-        // Add more members as needed
-      ];
+  requireAuth();
+  const groupMembersData = [
+    { id: 1, name: "Alice", avatar: "https://via.placeholder.com/40" },
+    { id: 2, name: "Bob", avatar: "https://via.placeholder.com/40" },
+    { id: 3, name: "Charlie", avatar: "https://via.placeholder.com/40" },
+    // Add more members as needed
+  ];
 
   const [messages, setMessages] = useState([
     // Example initial messages
