@@ -1,9 +1,9 @@
 import { Button } from "@/components/ui/button"
 
 
-const SharedButton = ({type, className, disabled, label}) => {
+const SharedButton = ({type, className, disabled, label, handleClick}) => {
   return (
-  <Button type={type} className={className} disabled={disabled}>
+  <Button type={type} className={className} disabled={disabled} onClick={handleClick}>
     {label}
   </Button>
   ) 

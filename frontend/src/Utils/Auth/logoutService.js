@@ -1,4 +1,4 @@
-export const logout = async () => {
+export const logoutService = async () => {
     try {
         localStorage.removeItem('user');
     } catch (error) {
