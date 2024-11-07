@@ -36,13 +36,13 @@ const LobbyLayout = () => {
 
         <h2 className="text-xl font-bold mb-4">Chat Lobbies</h2>
         <SharedButton
-          onClick={handlePrivateChat}
+          handleClick={handlePrivateChat}
           className={"bg-blue-500 hover:bg-blue-600 py-2 px-4 rounded mb-2"}
           label={"Private Chat Lobby"}
         />
 
         <SharedButton
-          onClick={handleGroupChat}
+          handleClick={handleGroupChat}
           className={"bg-green-500 hover:bg-green-600 py-2 px-4 rounded mb-4"}
           label={"Group Chat Lobby"}
         />

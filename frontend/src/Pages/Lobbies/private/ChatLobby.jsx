@@ -27,7 +27,7 @@ const ChatLobby = () => {
 
       {/* Online Users to Select */}
       <div className="w-full max-w-lg bg-gray-700 rounded-lg p-6 shadow-lg mb-8">
-        <h2 className="text-xl font-semibold mb-4">Available Users</h2>
+        <h2 className="text-xl font-semibold mb-4">Available Users (0)</h2>
         <div className="flex flex-wrap gap-4">
           {onlineUsersData.map((user) => (
             <div
