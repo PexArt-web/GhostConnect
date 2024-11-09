@@ -8,6 +8,7 @@ const LobbyLayout = () => {
   requireAuth();
   const navigate = useNavigate();
   const { user, dispatch } = useAuthContext();
+  console.log(user, "users")
   const handlePrivateChat = () => {
     navigate("private-chat-lobby");
   };
@@ -30,7 +31,7 @@ const LobbyLayout = () => {
         {/* User Info */}
         <div className="mb-4">
           <h2 className="text-lg font-semibold">
-            Welcome, {user?.username || user?.email || "Guest"}
+            Welcome, {user?.username || "Guest"}
           </h2>
         </div>
 

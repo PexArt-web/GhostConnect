@@ -1,18 +1,18 @@
 import { requireAuth } from "@/services/Auth/middleware/requireAuth";
-import { connectWeBSocket, socket } from "@/services/weBSocket";
-import { useEffect, useState } from "react";
+// import { connectWeBSocket, socket } from "@/services/weBSocket";
+import { useState } from "react";
 import { FiSend, FiUsers } from "react-icons/fi";
 
 const GroupChat = () => {
   requireAuth();
-  useEffect(()=>{
-    connectWeBSocket()
-    console.log("connected to websocket!");
-    return () =>{
-      socket.disconnect()
-      console.log("disconnected from websocket!");
-    }
-  }, [])
+  // useEffect(()=>{
+  //   connectWeBSocket()
+  //   console.log("connected to websocket!");
+  //   return () =>{
+  //     socket.disconnect()
+  //     console.log("disconnected from websocket!");
+  //   }
+  // }, [])
   // 
   const groupMembersData = [
     { id: 1, name: "Alice", avatar: "https://via.placeholder.com/40" },
