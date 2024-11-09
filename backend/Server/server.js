@@ -22,7 +22,12 @@ connectDB((error) => {
       log(`database and server started at port  + ${port}`);
     });
     // weBSocket Connection
-    const io = require("socket.io")(server);
+    const io = require("socket.io")(server, {
+      cors: {
+        origin: "http://localhost:5173",
+        methods: ["GET", "POST"],
+      },
+    });
     io.on("connection", onConnect);
     //
     return;
