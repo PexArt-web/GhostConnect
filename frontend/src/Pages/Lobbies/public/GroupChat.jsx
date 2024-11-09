@@ -1,20 +1,29 @@
 import { requireAuth } from "@/services/Auth/middleware/requireAuth";
-import { useState } from "react";
+import { connectWeBSocket, socket } from "@/services/weBSocket";
+import { useEffect, useState } from "react";
 import { FiSend, FiUsers } from "react-icons/fi";
 
 const GroupChat = () => {
   requireAuth();
+  useEffect(()=>{
+    connectWeBSocket()
+    console.log("connected to websocket!");
+    return () =>{
+      socket.disconnect()
+      console.log("disconnected from websocket!");
+    }
+  }, [])
+  // 
   const groupMembersData = [
     { id: 1, name: "Alice", avatar: "https://via.placeholder.com/40" },
     { id: 2, name: "Bob", avatar: "https://via.placeholder.com/40" },
     { id: 3, name: "Charlie", avatar: "https://via.placeholder.com/40" },
-    // Add more members as needed
   ];
 
   const [messages, setMessages] = useState([
-    // Example initial messages
+    // Example messages
     { sender: "Alice", content: "Hey everyone!" },
-    { sender: "Bob", content: "Hello! How's it going?" },
+    { sender: "Bola", content: "Hello! How's it going?" },
   ]);
   const [newMessage, setNewMessage] = useState("");
 
@@ -75,7 +84,7 @@ const GroupChat = () => {
         ))}
       </div>
 
-      {/* Message Input Area */}
+      {/* Message Input */}
       <div className="p-4 bg-gray-800 flex items-center">
         <input
           type="text"

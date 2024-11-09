@@ -1,12 +1,23 @@
 import { requireAuth } from "@/services/Auth/middleware/requireAuth";
+import { connectWeBSocket, socket } from "@/services/weBSocket";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 const GroupLobby = () => {
   requireAuth()
+  useEffect(()=>{
+    connectWeBSocket()
+    console.log("connected to websocket")
+
+    return ()=>{
+      socket.disconnect()
+      console.log("disconnected from websocket")
+    }
+  },[])
   const onlineUsersData = [
     { id: 1, name: "Jane Doe", avatar: "https://via.placeholder.com/40" },
     { id: 2, name: "John Smith", avatar: "https://via.placeholder.com/40" },
-    // Add more user objects as needed
+    
   ];
 
   const onlineCount = onlineUsersData.length;
