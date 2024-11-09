@@ -1,7 +1,7 @@
-import { useAuthContext } from "@/Hooks/useAuthContext";
+import { useAuthContext } from "@/hooks/useAuthContext";
 import SharedButton from "@/shared/component/SharedButton";
-import { logoutService } from "@/Utils/Auth/logoutService";
-import { requireAuth } from "@/Utils/Auth/middleware/requireAuth";
+import { logoutService } from "@/services/Auth/logoutService";
+import { requireAuth } from "@/services/Auth/middleware/requireAuth";
 import { Outlet, useNavigate } from "react-router-dom";
 
 const LobbyLayout = () => {

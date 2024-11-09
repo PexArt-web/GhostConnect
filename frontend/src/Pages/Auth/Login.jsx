@@ -6,7 +6,7 @@ import {
   useNavigate,
   useNavigation,
 } from "react-router-dom";
-import { useAuthContext } from "../../Hooks/useAuthContext";
+import { useAuthContext } from "../../hooks/useAuthContext";
 import SharedInput from "@/shared/component/SharedInput";
 import SharedButton from "@/shared/component/SharedButton";
 

@@ -1,4 +1,4 @@
-import { requireAuth } from "@/Utils/Auth/middleware/requireAuth";
+import { requireAuth } from "@/services/Auth/middleware/requireAuth";
 import { useState } from "react";
 import { FiSend, FiUsers } from "react-icons/fi";
 

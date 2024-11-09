@@ -1,4 +1,4 @@
-import { loginService } from "../../Utils/Auth/loginService";
+import { loginService } from "../../services/Auth/loginService";
 import { loginSchema } from "../Schemas/loginSchema";
 
 export const loginAction = async ({ request }) => {

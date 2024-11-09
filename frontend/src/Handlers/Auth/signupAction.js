@@ -1,4 +1,4 @@
-import { signupService } from "../../Utils/Auth/signupService";
+import { signupService } from "../../services/Auth/signupService";
 import { signUpSchema } from "../Schemas/signUpSchema";
 
 export const signupAction = async ({ request }) => {

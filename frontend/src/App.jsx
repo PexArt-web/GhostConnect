@@ -4,17 +4,17 @@ import {
   Route,
   RouterProvider,
 } from "react-router-dom";
-import Splash from "./Pages/SplashScreen/Splash";
-import ChatLobby from "./Pages/Lobbies/private/ChatLobby";
-import MainChat from "./Pages/Lobbies/private/MainChat";
-import AllRoutesError from "./Pages/Errors/AllRoutesError";
-import GroupChat from "./Pages/Lobbies/public/GroupChat";
-import GroupLobby from "./Pages/Lobbies/public/GroupLobby";
-import LobbyLayout from "./Layouts/LobbyLayout";
-import Signup from "./Pages/Auth/Signup";
-import Login from "./Pages/Auth/Login";
-import { loginAction } from "./Handlers/Auth/loginAction";
-import { signupAction } from "./Handlers/Auth/signupAction"
+import Splash from "./pages/SplashScreen/Splash";
+import ChatLobby from "./pages/Lobbies/private/ChatLobby";
+import MainChat from "./pages/Lobbies/private/MainChat";
+import AllRoutesError from "./pages/Errors/AllRoutesError";
+import GroupChat from "./pages/Lobbies/public/GroupChat";
+import GroupLobby from "./pages/Lobbies/public/GroupLobby";
+import LobbyLayout from "./layouts/LobbyLayout";
+import Signup from "./pages/Auth/Signup";
+import Login from "./pages/Auth/Login";
+import { loginAction } from "./handlers/Auth/loginAction";
+import { signupAction } from "./handlers/Auth/signupAction"
 function App() {
   const router = createBrowserRouter(
     createRoutesFromElements(

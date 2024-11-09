@@ -1,4 +1,4 @@
-import { requireAuth } from "@/Utils/Auth/middleware/requireAuth";
+import { requireAuth } from "@/services/Auth/middleware/requireAuth";
 import { useNavigate } from "react-router-dom";
 
 const GroupLobby = () => {
