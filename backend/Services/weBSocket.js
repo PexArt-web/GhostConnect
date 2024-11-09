@@ -1,3 +1,5 @@
+let socketConnected = new Set()
+
 const onConnect = (socket) => {
     
 }
