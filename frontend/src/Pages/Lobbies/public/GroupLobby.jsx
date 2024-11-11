@@ -1,6 +1,5 @@
 import { requireAuth } from "@/services/Auth/middleware/requireAuth";
 import { socket } from "@/services/weBSocket";
-
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -11,17 +10,26 @@ const GroupLobby = () => {
   const handleClick = () => {
     navigate("/lobby-layout/group-chat");
   };
+  
+  socket.on("connect", () => {
+    console.log(socket.id, 'socket id')
+  });
 
+  socket.on("clients-total", (data) => {
+    console.log(data)
+    setOnlineUsers(data)
+  })
+
+  socket.on("disconnect", () => {
+    console.log("User disconnected", socket.id);
+  });
   useEffect(() => {
-    socket.on("clients-total", (data) => {
-      console.log(data);
-    });
 
-    return () => {
-      socket.off("disconnect", () => {
-        console.log("User disconnected");
-      });
-    };
+    // return () => {
+    //   socket.off("disconnect", () => {
+    //     console.log("User disconnected");
+    //   });
+    // };
   }, []);
 
   return (
@@ -34,7 +42,7 @@ const GroupLobby = () => {
       {/* Online Users Display */}
       <div className="w-full max-w-lg bg-gray-700 rounded-lg p-6 shadow-lg mb-8">
         <h2 className="text-xl font-semibold mb-4">
-          Online Users ({onlineUsers})
+          Online Users ( {onlineUsers} )
         </h2>
         {/* <div className="flex flex-wrap gap-4">
           {onlineUsersData.map((user) => (
