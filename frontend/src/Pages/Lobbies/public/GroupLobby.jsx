@@ -1,3 +1,4 @@
+import { useAuthContext } from "@/hooks/useAuthContext";
 import { requireAuth } from "@/services/Auth/middleware/requireAuth";
 import { connectSocket, socket } from "@/services/weBSocket";
 import { useEffect, useState } from "react";
@@ -5,41 +6,42 @@ import { useNavigate } from "react-router-dom";
 
 const GroupLobby = () => {
   requireAuth();
+  const { user } = useAuthContext();
   const [onlineUsers, setOnlineUsers] = useState(0);
   const navigate = useNavigate();
   const handleClick = () => {
     navigate("/lobby-layout/group-chat");
   };
 
-  const socketServer = async () =>{
+  const socketServer = async () => {
     try {
-      connectSocket()
-      if(socket && socket.connected){
-        
-      socket.on("connect", () => {
-        console.log(socket.id, 'socket id')
-      });
-    
-      socket.on("clients-total", (data) => {
-        console.log(data)
-        setOnlineUsers(data)
-      })
-    
-      socket.on("disconnect", () => {
-        console.log("User disconnected", socket.id);
-      });
+      connectSocket();
+      if (socket && socket.connected) {
+        socket.on("connect", () => {
+          console.log(socket.id, "socket id");
+          socket.emit("username", user?.username);
+        });
+
+        socket.on("clients-total", (data) => {
+          console.log(data);
+          setOnlineUsers(data);
+        });
+
+        socket.on("disconnect", () => {
+          console.log("User disconnected", socket.id);
+        });
       }
     } catch (error) {
-      console.log("error with socket server: " , error ) 
+      console.log("error with socket server: ", error);
     }
-  }
-  
+  };
+
   useEffect(() => {
-    socketServer()
+    socketServer();
     return () => {
       socket.off("disconnect");
       socket.off("connect");
-      socket.off("clients-total")
+      socket.off("clients-total");
     };
   }, []);
 
