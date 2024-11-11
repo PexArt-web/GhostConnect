@@ -24,11 +24,11 @@ connectDB((error) => {
     // weBSocket Connection
     const io = require("socket.io")(server, {
       cors: {
-        origin: "http://localhost:5173",
-        methods: ["GET", "POST"],
+        origin: ["http://localhost:5173", "http://localhost:5174"]
+        // methods: ["GET", "POST"],
       },
     });
-    io.on("connection", onConnect);
+    io.on("connection", (socket)=>onConnect(socket, io));
     //
     return;
   } else {

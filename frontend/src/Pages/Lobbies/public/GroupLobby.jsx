@@ -1,38 +1,32 @@
 import { requireAuth } from "@/services/Auth/middleware/requireAuth";
-import { connectWeBSocket, socket } from "@/services/weBSocket";
+import { socket } from "@/services/weBSocket";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const GroupLobby = () => {
-  requireAuth()
-  const [onlineUsers, setOnlineUsers] = useState(null)
-  useEffect(()=>{
-    connectWeBSocket()
-    console.log("connected to websocket")
+  requireAuth();
+  const [onlineUsers, setOnlineUsers] = useState(0);
+  useEffect(() => {
+    // connectWeBSocket();
+    console.log("connected to websocket...");
+    socket.on("activeConnections", (data) => {
+      setOnlineUsers(data);
+      console.log("active", data);
+    });
 
-    // return ()=>{
-    //   socket.disconnect()
-    //   console.log("disconnected from websocket")
-    // }
-  },[])
+    return () => {
+      // socket.on("disconnect", () => {
+      //   console.log("socket disconnected");
+      // });
+      socket.off("activeConnections");
+      console.log("active socket disconnected");
+    };
+  }, []);
 
-  socket.on('activeConnections', (data)=>{
-    setOnlineUsers(data)
-  })
-   console.log(onlineUsers, "users connected")
-
-  const onlineUsersData = [
-    { id: 1, name: "Jane Doe", avatar: "https://via.placeholder.com/40" },
-    { id: 2, name: "John Smith", avatar: "https://via.placeholder.com/40" },
-    
-  ];
-
-  const onlineCount = onlineUsersData.length;
-  
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const handleClick = () => {
     navigate("/lobby-layout/group-chat");
-  }
+  };
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-800 text-white px-6">
@@ -44,9 +38,9 @@ const GroupLobby = () => {
       {/* Online Users Display */}
       <div className="w-full max-w-lg bg-gray-700 rounded-lg p-6 shadow-lg mb-8">
         <h2 className="text-xl font-semibold mb-4">
-          Online Users ({onlineCount})
+          Online Users ({onlineUsers})
         </h2>
-        <div className="flex flex-wrap gap-4">
+        {/* <div className="flex flex-wrap gap-4">
           {onlineUsersData.map((user) => (
             <div key={user.id} className="flex items-center space-x-2">
               <img
@@ -57,7 +51,7 @@ const GroupLobby = () => {
               <span className="text-gray-200 font-medium">{user.name}</span>
             </div>
           ))}
-        </div>
+        </div> */}
       </div>
 
       {/* Enter Chat Button */}
