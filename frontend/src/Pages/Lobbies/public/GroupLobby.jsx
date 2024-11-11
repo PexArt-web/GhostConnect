@@ -1,32 +1,28 @@
 import { requireAuth } from "@/services/Auth/middleware/requireAuth";
 import { socket } from "@/services/weBSocket";
+
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const GroupLobby = () => {
   requireAuth();
   const [onlineUsers, setOnlineUsers] = useState(0);
-  useEffect(() => {
-    // connectWeBSocket();
-    console.log("connected to websocket...");
-    socket.on("activeConnections", (data) => {
-      setOnlineUsers(data);
-      console.log("active", data);
-    });
-
-    return () => {
-      // socket.on("disconnect", () => {
-      //   console.log("socket disconnected");
-      // });
-      socket.off("activeConnections");
-      console.log("active socket disconnected");
-    };
-  }, []);
-
   const navigate = useNavigate();
   const handleClick = () => {
     navigate("/lobby-layout/group-chat");
   };
+
+  useEffect(() => {
+    socket.on("clients-total", (data) => {
+      console.log(data);
+    });
+
+    return () => {
+      socket.off("disconnect", () => {
+        console.log("User disconnected");
+      });
+    };
+  }, []);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-800 text-white px-6">
