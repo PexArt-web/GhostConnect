@@ -1,3 +1,4 @@
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuthContext } from "@/hooks/useAuthContext";
 import { requireAuth } from "@/services/Auth/middleware/requireAuth";
 import { connectSocket, socket } from "@/services/weBSocket";
@@ -9,13 +10,14 @@ const GroupLobby = () => {
   requireAuth();
   const { user } = useAuthContext();
   const [onlineUsers, setOnlineUsers] = useState(0);
+  const [users, setUsers] = useState({});
   const navigate = useNavigate();
   const handleClick = () => {
     navigate("/lobby-layout/group-chat");
   };
 
   function weBSocket() {
-    connectSocket();
+    const gateWay = connectSocket();
     socket.on("connect", () => {
       socket.emit("username", user?.username);
     });
@@ -25,7 +27,7 @@ const GroupLobby = () => {
     });
 
     socket.on("users-list", (usersList) => {
-      console.log(usersList, "users list");
+      setUsers(usersList);
     });
 
     socket.on("disconnect");
@@ -53,24 +55,28 @@ const GroupLobby = () => {
         <h2 className="text-xl font-semibold mb-4">
           Online Users ( {onlineUsers} )
         </h2>
-        {/* <div className="flex flex-wrap gap-4">
-          {onlineUsersData.map((user) => (
-            <div key={user.id} className="flex items-center space-x-2">
-              <img
-                src={user.avatar}
-                alt={`${user.name}'s avatar`}
-                className="w-10 h-10 rounded-full border-2 border-blue-500"
-              />
-              <span className="text-gray-200 font-medium">{user.name}</span>
+        <div className="flex flex-wrap gap-4">
+          {Object.entries(users).map(([id, username]) => (
+            <div key={id} className="flex items-center space-x-2">
+              <Avatar>
+                <AvatarImage src="https://github.com/shadcn.png" />
+                <AvatarFallback>CN</AvatarFallback>
+              </Avatar>
+              <span className="text-gray-200 font-medium">{username}</span>
             </div>
           ))}
-        </div> */}
+        </div>
       </div>
 
       {/* Enter Chat Button */}
-      <SharedButton className={"w-full max-w-xs py-3 bg-blue-500 text-white rounded-lg font-semibold hover:bg-blue-600 transition duration-200"} label={"Enter Chat Room ➔"} handleClick={handleClick}/>
+      <SharedButton
+        className={
+          "w-full max-w-xs py-3 bg-blue-500 text-white rounded-lg font-semibold hover:bg-blue-600 transition duration-200"
+        }
+        label={"Enter Chat Room ➔"}
+        handleClick={handleClick}
+      />
     </div>
   );
 };
-
 export default GroupLobby;

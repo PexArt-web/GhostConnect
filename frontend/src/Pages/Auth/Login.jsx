@@ -9,6 +9,7 @@ import {
 import { useAuthContext } from "../../hooks/useAuthContext";
 import SharedInput from "@/shared/component/SharedInput";
 import SharedButton from "@/shared/component/SharedButton";
+import SharedAlert from "@/shared/component/SharedAlert";
 
 const Login = () => {
   const navigation = useNavigation();
@@ -17,6 +18,18 @@ const Login = () => {
   console.log(actionData, "login");
   const { dispatch } = useAuthContext();
   useEffect(() => {
+    if (
+      actionData &&
+      actionData.error === "Error: Redirecting users to the sign up page"
+    ) {
+      <SharedAlert
+        type={"Error"}
+        label={"Account does not exist redirecting back to sign up page"}
+      />;
+      setTimeout(() => {
+        navigate("/get-started?message=please login", { replace: true });
+      }, 5000);
+    }
     if (actionData && actionData?.user) {
       dispatch({ type: "LOGIN", payload: actionData.user });
       navigate("/lobby-layout", { replace: true });
@@ -76,7 +89,7 @@ const Login = () => {
           />
           {actionData?.error && (
             <p style={{ color: "red" }} className="text-center">
-              {actionData.error}
+              {actionData.error === "Error: read ECONNRESET" ? "Please check your network connection and try again" : actionData.error}
             </p>
           )}
         </Form>

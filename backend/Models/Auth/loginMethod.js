@@ -1,7 +1,9 @@
 const bcrypt = require("bcryptjs");
 const User = require("../Blueprint/userModel");
 const MaxAttempts = 3;
+let maxTrial = 0;
 const lockTimeOut = 30 * 60 * 1000; // 30 minutes lockOut
+const { log } = console;
 
 const login = async (username, email, password) => {
   try {
@@ -10,7 +12,13 @@ const login = async (username, email, password) => {
     }
     const existingUser = await User.findOne({ $or: [{ email }, { username }] });
     if (!existingUser) {
-      throw Error("Invalid username or password");
+      // remember to redirect users to the sign up page after max attempts
+      if(maxTrial >= MaxAttempts){
+        throw Error("Redirecting users to the sign up page");
+      }
+      maxTrial++;
+      log(maxTrial, "redirecting users to the sign up page");
+      throw Error("Account does not exist");
     }
 
     // check if user is locked

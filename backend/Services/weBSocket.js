@@ -9,7 +9,7 @@ function onConnect(socket, io) {
   //<-- username updated -->
   socket.on("username", (username) => {
     usersList[socket.id] = username;
-    io.emit("users-list", usersList);
+    socket.broadcast.emit("users-list", usersList);
   });
 
   socket.on("disconnect", () => {
