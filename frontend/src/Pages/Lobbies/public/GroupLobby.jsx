@@ -1,7 +1,7 @@
 import { useAuthContext } from "@/hooks/useAuthContext";
 import { requireAuth } from "@/services/Auth/middleware/requireAuth";
 import { connectSocket, socket } from "@/services/weBSocket";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const GroupLobby = () => {
@@ -13,37 +13,30 @@ const GroupLobby = () => {
     navigate("/lobby-layout/group-chat");
   };
 
-  const socketServer = async () => {
-    try {
-      connectSocket();
-      if (socket && socket.connected) {
-        socket.on("connect", () => {
-          console.log(socket.id, "socket id");
-          socket.emit("username", user?.username);
-        });
+  connectSocket();
+  socket.on("connect", () => {
+    console.log(socket.id, "socket id");
+    socket.emit("username", user?.username);
+    console.log(user?.username, "username");
+  });
 
-        socket.on("clients-total", (data) => {
-          console.log(data);
-          setOnlineUsers(data);
-        });
+  socket.on("clients-total", (data) => {
+    console.log(data);
+    setOnlineUsers(data);
+  });
 
-        socket.on("disconnect", () => {
-          console.log("User disconnected", socket.id);
-        });
-      }
-    } catch (error) {
-      console.log("error with socket server: ", error);
-    }
-  };
+  socket.on("disconnect", () => {
+    console.log("User disconnected", socket.id);
+  });
 
-  useEffect(() => {
-    socketServer();
-    return () => {
-      socket.off("disconnect");
-      socket.off("connect");
-      socket.off("clients-total");
-    };
-  }, []);
+  // useEffect(() => {
+  //   socketServer();
+  //   return () => {
+  //     socket.off("disconnect");
+  //     socket.off("connect");
+  //     socket.off("clients-total");
+  //   };
+  // }, []);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-800 text-white px-6">

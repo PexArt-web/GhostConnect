@@ -8,13 +8,17 @@ function onConnect(socket, io) {
   log("total connections :" + totalConnections.size);
   //<-- username updated -->
   socket.on("username", (username) => {
-    console.log(username, "username");
+    log(username, "username");
     usersList[socket.id] = username;
+    log("user List :" + usersList);
+    io.emit("usersList", usersList);
   });
 
   socket.on("disconnect", () => {
     totalConnections.delete(socket.id);
+    io.emit("clients-total", totalConnections.size);
     delete usersList[socket.id];
+    io.emit("usersList", usersList);
   });
 }
 module.exports = { onConnect };
