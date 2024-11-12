@@ -8,10 +8,8 @@ function onConnect(socket, io) {
   log("total connections :" + totalConnections.size);
   //<-- username updated -->
   socket.on("username", (username) => {
-    log(username, "username");
     usersList[socket.id] = username;
-    log("user List :" + usersList);
-    io.emit("usersList", usersList);
+    io.emit("users-list", usersList);
   });
 
   socket.on("disconnect", () => {

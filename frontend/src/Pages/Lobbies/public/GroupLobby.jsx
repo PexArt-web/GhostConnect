@@ -1,6 +1,7 @@
 import { useAuthContext } from "@/hooks/useAuthContext";
 import { requireAuth } from "@/services/Auth/middleware/requireAuth";
 import { connectSocket, socket } from "@/services/weBSocket";
+import SharedButton from "@/shared/component/SharedButton";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -13,24 +14,26 @@ const GroupLobby = () => {
     navigate("/lobby-layout/group-chat");
   };
 
-  connectSocket();
-  socket.on("connect", () => {
-    console.log(socket.id, "socket id");
-    socket.emit("username", user?.username);
-    console.log(user?.username, "username");
-  });
+  function weBSocket() {
+    connectSocket();
+    socket.on("connect", () => {
+      socket.emit("username", user?.username);
+    });
 
-  socket.on("clients-total", (data) => {
-    console.log(data);
-    setOnlineUsers(data);
-  });
+    socket.on("clients-total", (clientsTotal) => {
+      setOnlineUsers(clientsTotal);
+    });
 
-  socket.on("disconnect", () => {
-    console.log("User disconnected", socket.id);
-  });
+    socket.on("users-list", (usersList) => {
+      console.log(usersList, "users list");
+    });
+
+    socket.on("disconnect");
+  }
+
+  weBSocket();
 
   // useEffect(() => {
-  //   socketServer();
   //   return () => {
   //     socket.off("disconnect");
   //     socket.off("connect");
@@ -65,13 +68,7 @@ const GroupLobby = () => {
       </div>
 
       {/* Enter Chat Button */}
-      <button
-        className="w-full max-w-xs py-3 bg-blue-500 text-white rounded-lg font-semibold hover:bg-blue-600 transition duration-200"
-        // onClick={() => alert("Navigating to chat...")}
-        onClick={handleClick}
-      >
-        Enter Chat Room ➔
-      </button>
+      <SharedButton className={"w-full max-w-xs py-3 bg-blue-500 text-white rounded-lg font-semibold hover:bg-blue-600 transition duration-200"} label={"Enter Chat Room ➔"} handleClick={handleClick}/>
     </div>
   );
 };
