@@ -56,7 +56,7 @@ const Signup = () => {
           <SharedButton type={"submit"} className={"w-full py-3 bg-blue-500 text-white rounded-lg font-semibold hover:bg-blue-600 transition duration-200"} disabled={navigation.state === "submitting"} label={  navigation.state === "submitting" ? "Please wait..." : "Sign Up"}/>
           {actionData?.error && (
             <p style={{ color: "red" }} className="text-center">
-              {actionData.error}
+                 {actionData.error === "Error: read ECONNRESET" ? "Please check your network connection and try again" : actionData.error}
             </p>
           )}
         </Form>
