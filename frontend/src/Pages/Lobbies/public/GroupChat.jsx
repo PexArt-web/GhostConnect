@@ -1,25 +1,39 @@
 import { requireAuth } from "@/services/Auth/middleware/requireAuth";
-// import { connectWeBSocket, socket } from "@/services/weBSocket";
+import { connectSocket, socket } from "@/services/weBSocket";
 import { useState } from "react";
 import { FiSend, FiUsers } from "react-icons/fi";
 
 const GroupChat = () => {
   requireAuth();
-  // useEffect(()=>{
-  //   connectWeBSocket()
-  //   console.log("connected to websocket!");
-  //   return () =>{
-  //     socket.disconnect()
-  //     console.log("disconnected from websocket!");
-  //   }
-  // }, [])
-  // 
+  const [onlineUsersCount, setOnlineUsersCount] = useState(0);
+  const [userName, setUserName] = useState("");
+  function weBSocket() {
+    connectSocket();
+    socket.on("connect", () => {
+      console.log(socket.id, "groupchat socket id");
+    });
+
+    socket.on("clients-total", (clientsTotal) => {
+      setOnlineUsersCount(clientsTotal);
+      console.log(onlineUsersCount, "online users total")
+    });
+
+    socket.on("users-list", (usersList) => {
+      console.log(usersList, "users list");
+      setUserName(usersList)
+      console.log(userName, "user name")
+    });
+
+    // socket.on("disconnect")
+  }
+  weBSocket();
+
   const groupMembersData = [
     { id: 1, name: "Alice", avatar: "https://via.placeholder.com/40" },
     { id: 2, name: "Bob", avatar: "https://via.placeholder.com/40" },
     { id: 3, name: "Charlie", avatar: "https://via.placeholder.com/40" },
   ];
-
+``
   const [messages, setMessages] = useState([
     // Example messages
     { sender: "Alice", content: "Hey everyone!" },
@@ -39,7 +53,9 @@ const GroupChat = () => {
     <div className="flex flex-col h-screen bg-gray-900 text-white">
       {/* Header */}
       <div className="flex items-center justify-between p-4 bg-gray-800 shadow-lg">
-        <h2 className="text-xl font-semibold">Group Chat</h2>
+        <h2 className="text-xl font-semibold">
+          Welcome To the Invisible Connect
+        </h2>
         <div className="flex items-center text-sm text-gray-400">
           <FiUsers className="mr-2" />
           {groupMembersData.length} members online

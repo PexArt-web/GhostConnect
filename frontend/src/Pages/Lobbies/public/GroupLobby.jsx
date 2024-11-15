@@ -1,14 +1,14 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useAuthContext } from "@/hooks/useAuthContext";
+// import { useAuthContext } from "@/hooks/useAuthContext";
 import { requireAuth } from "@/services/Auth/middleware/requireAuth";
 import { connectSocket, socket } from "@/services/weBSocket";
 import SharedButton from "@/shared/component/SharedButton";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const GroupLobby = () => {
   requireAuth();
-  const { user } = useAuthContext();
+  // const { user } = useAuthContext();
   const [onlineUsers, setOnlineUsers] = useState(0);
   const [users, setUsers] = useState({});
   const navigate = useNavigate();
@@ -16,32 +16,34 @@ const GroupLobby = () => {
     navigate("/lobby-layout/group-chat");
   };
 
-  function weBSocket() {
-    const gateWay = connectSocket();
-    socket.on("connect", () => {
-      socket.emit("username", user?.username);
-    });
+  useEffect(()=>{
+    connectSocket();
+  },[])
 
-    socket.on("clients-total", (clientsTotal) => {
-      setOnlineUsers(clientsTotal);
-    });
+  useEffect(()=>{
+      socket.on("connect", ()=>{
+        console.log(socket.id,"client id")
+      })
+  },[])
 
-    socket.on("users-list", (usersList) => {
-      setUsers(usersList);
-    });
+  // function weBSocket() {
+  //   connectSocket();
+  //   socket.on("connect", () => {
+  //     socket.emit("username", user?.username);
+  //   });
 
-    socket.on("disconnect");
-  }
+  //   socket.on("clients-total", (clientsTotal) => {
+  //     setOnlineUsers(clientsTotal);
+  //   });
 
-  weBSocket();
+  //   socket.on("users-list", (usersList) => {
+  //     setUsers(usersList);
+  //   });
+  // }
 
-  // useEffect(() => {
-  //   return () => {
-  //     socket.off("disconnect");
-  //     socket.off("connect");
-  //     socket.off("clients-total");
-  //   };
-  // }, []);
+  // weBSocket();
+
+
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-800 text-white px-6">

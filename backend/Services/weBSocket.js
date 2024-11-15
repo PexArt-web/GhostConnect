@@ -9,13 +9,15 @@ function onConnect(socket, io) {
   //<-- username updated -->
   socket.on("username", (username) => {
     usersList[socket.id] = username;
-    socket.broadcast.emit("users-list", usersList);
+    io.emit("users-list", usersList);
   });
 
   socket.on("disconnect", () => {
     totalConnections.delete(socket.id);
+    // update after delete
     io.emit("clients-total", totalConnections.size);
     delete usersList[socket.id];
+    // update after delete
     io.emit("usersList", usersList);
   });
 }
