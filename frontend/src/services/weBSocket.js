@@ -1,11 +1,11 @@
 import { io } from "socket.io-client";
 
-const socket = io("http://localhost:4000");
-
-export function connectSocket() {
-  socket.on("connection", () => {
-    console.log("Connected to the server");
-  });
-};
+let socket;
+export function clientSocket() {
+  if (!socket) {
+    socket = io("http://localhost:4000");
+  }
+  
+}
 
 export { socket };

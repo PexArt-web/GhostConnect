@@ -1,32 +1,11 @@
 import { requireAuth } from "@/services/Auth/middleware/requireAuth";
-import { connectSocket, socket } from "@/services/weBSocket";
 import { useState } from "react";
 import { FiSend, FiUsers } from "react-icons/fi";
 
 const GroupChat = () => {
   requireAuth();
-  const [onlineUsersCount, setOnlineUsersCount] = useState(0);
-  const [userName, setUserName] = useState("");
-  function weBSocket() {
-    connectSocket();
-    socket.on("connect", () => {
-      console.log(socket.id, "groupchat socket id");
-    });
 
-    socket.on("clients-total", (clientsTotal) => {
-      setOnlineUsersCount(clientsTotal);
-      console.log(onlineUsersCount, "online users total")
-    });
 
-    socket.on("users-list", (usersList) => {
-      console.log(usersList, "users list");
-      setUserName(usersList)
-      console.log(userName, "user name")
-    });
-
-    // socket.on("disconnect")
-  }
-  weBSocket();
 
   const groupMembersData = [
     { id: 1, name: "Alice", avatar: "https://via.placeholder.com/40" },

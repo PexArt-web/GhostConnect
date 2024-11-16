@@ -5,7 +5,7 @@ const { connectDB } = require("../Config/database");
 const userRoutes = require("../Routes/userRoutes");
 const morgan = require("morgan");
 const cors = require("cors");
-const { onConnect } = require("../Services/weBSocket");
+const { connectSocket } = require("../Services/weBSocket");
 const app = express();
 const port = process.env.PORT || 4000;
 app.use(express.json());
@@ -28,7 +28,7 @@ connectDB((error) => {
         // methods: ["GET", "POST"],
       },
     });
-    io.on("connection", (socket) => onConnect(socket, io));
+    io.on("connection", (socket) => connectSocket(socket, io));
     //
     return;
   } else {

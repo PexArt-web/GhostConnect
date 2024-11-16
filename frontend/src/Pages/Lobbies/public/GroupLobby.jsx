@@ -1,49 +1,36 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-// import { useAuthContext } from "@/hooks/useAuthContext";
+import { useAuthContext } from "@/hooks/useAuthContext";
 import { requireAuth } from "@/services/Auth/middleware/requireAuth";
-import { connectSocket, socket } from "@/services/weBSocket";
+import { clientSocket, socket } from "@/services/weBSocket";
 import SharedButton from "@/shared/component/SharedButton";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const GroupLobby = () => {
   requireAuth();
-  // const { user } = useAuthContext();
+  const { user } = useAuthContext();
   const [onlineUsers, setOnlineUsers] = useState(0);
   const [users, setUsers] = useState({});
+
+  // socket instance
+
+  useEffect(() => {
+    console.log("use effect ran");
+    clientSocket();
+    socket.on("connect", () => {
+      console.log(socket.id, "Connected to server");
+      socket.emit("username", user?.username)
+    });
+
+    socket.on("welcome", (data)=>{
+      console.log("Welcome", data);
+    })
+  }, []);
+
   const navigate = useNavigate();
   const handleClick = () => {
     navigate("/lobby-layout/group-chat");
   };
-
-  useEffect(()=>{
-    connectSocket();
-  },[])
-
-  useEffect(()=>{
-      socket.on("connect", ()=>{
-        console.log(socket.id,"client id")
-      })
-  },[])
-
-  // function weBSocket() {
-  //   connectSocket();
-  //   socket.on("connect", () => {
-  //     socket.emit("username", user?.username);
-  //   });
-
-  //   socket.on("clients-total", (clientsTotal) => {
-  //     setOnlineUsers(clientsTotal);
-  //   });
-
-  //   socket.on("users-list", (usersList) => {
-  //     setUsers(usersList);
-  //   });
-  // }
-
-  // weBSocket();
-
-
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-800 text-white px-6">

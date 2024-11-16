@@ -8,7 +8,10 @@ const LobbyLayout = () => {
   requireAuth();
   const navigate = useNavigate();
   const { user, dispatch } = useAuthContext();
-  console.log(user, "users")
+
+  // socket instance
+
+  //
   const handlePrivateChat = () => {
     navigate("private-chat-lobby");
   };
@@ -28,7 +31,6 @@ const LobbyLayout = () => {
     <div className="flex h-screen">
       {/* Sidebar */}
       <div className="w-1/4 bg-gray-800 text-white p-4 flex flex-col">
-        {/* User Info */}
         <div className="mb-4">
           <h2 className="text-lg font-semibold">
             Welcome, {user?.username || "Guest"}
