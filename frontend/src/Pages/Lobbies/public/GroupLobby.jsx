@@ -9,21 +9,29 @@ import { useNavigate } from "react-router-dom";
 const GroupLobby = () => {
   requireAuth();
   const { user } = useAuthContext();
-  const [onlineUsers, setOnlineUsers] = useState(0);
+  const [onlineUsersCount, setOnlineUsersCount] = useState(0);
   const [users, setUsers] = useState({});
-
+  
+  const usersname  = user?.username
+ 
   // socket instance
-
   useEffect(() => {
     console.log("use effect ran");
     clientSocket();
     socket.on("connect", () => {
-      console.log(socket.id, "Connected to server");
-      socket.emit("username", user?.username)
+      console.log(socket.id)
     });
+    
+    socket.emit("userName", usersname);
 
-    socket.on("welcome", (data)=>{
-      console.log("Welcome", data);
+    socket.on("userList", (data)=>{
+      setUsers(data);
+      console.log("userList", data);
+    })
+
+    socket.on("activeUsers", (data)=>{
+      setOnlineUsersCount(data);
+      console.log("activeUsers", data);
     })
   }, []);
 
@@ -42,7 +50,7 @@ const GroupLobby = () => {
       {/* Online Users Display */}
       <div className="w-full max-w-lg bg-gray-700 rounded-lg p-6 shadow-lg mb-8">
         <h2 className="text-xl font-semibold mb-4">
-          Online Users ( {onlineUsers} )
+          Online Users ( {onlineUsersCount} )
         </h2>
         <div className="flex flex-wrap gap-4">
           {Object.entries(users).map(([id, username]) => (
