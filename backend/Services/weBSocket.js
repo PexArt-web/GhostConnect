@@ -1,16 +1,41 @@
-let connectedSocket = new Set()
-let users = {}
+// let connectedSocket = new Set()
+const { log } = console;
+let userID;
+let users = {};
 
-function connectSocket(socket, io){
+function connectSocket(socket, io) {
+  // saving each userID
+  socket.on("userIdentifier", (id) => {
+    userID = id;
+    log(id, "userID");
+  });
+  //using the ID as keys for each users usernames
+  socket.on("userName", (username) => {
+    users[userID] = username;
+  });
+
   //<--Active Users -->
-  connectedSocket.add(socket.id)
-  io.emit("activeUsers", connectedSocket.size)
+  //emitting the number of active users to the frontend every time a new user joins or leaves the server
+  io.emit("activeUsers", Object.keys(users).length);
+  
+  //<--User List -->
+  //emitting the whole user object to map username from frontend
+  socket.emit("userList", users);
 
-  socket.on("userName", (username)=>{
-    users[socket.id] = username
-  })
+  socket.on("disconnect", () => {
+    const removeUserId = Object.keys(users).find((index) => index === userID);
 
-  socket.emit("userList", users)
+    if (removeUserId) {
+      delete users[removeUserId];
+      io.emit("activeUsers", Object.keys(users).length);
+      log(removeUserId, "left the server");
+
+      //<--User List -->
+      //emitting the whole user object to map username from frontend
+      io.emit("userList", users);
+    }
+  });
+
 }
 
-module.exports = {connectSocket}
+module.exports = { connectSocket };
