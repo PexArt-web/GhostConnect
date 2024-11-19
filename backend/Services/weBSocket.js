@@ -12,22 +12,24 @@ function connectSocket(socket, io) {
   //using the ID as keys for each users usernames
   socket.on("userName", (username) => {
     users[userID] = username;
+    log(users, "userName", username);
+    //<--Active Users -->
+    //emitting the number of active users to the frontend every time a new user joins or leaves the server
+    io.emit("activeUsers", Object.keys(users).length);
+    log(Object.keys(users).length, "length");
+    //<--User List -->
+    //emitting the whole user object to map username from frontend
+    socket.emit("userList", users);
   });
 
-  //<--Active Users -->
-  //emitting the number of active users to the frontend every time a new user joins or leaves the server
-  io.emit("activeUsers", Object.keys(users).length);
-  
-  //<--User List -->
-  //emitting the whole user object to map username from frontend
-  socket.emit("userList", users);
-
+  //<--Socket Disconnections-->
   socket.on("disconnect", () => {
     const removeUserId = Object.keys(users).find((index) => index === userID);
 
     if (removeUserId) {
       delete users[removeUserId];
       io.emit("activeUsers", Object.keys(users).length);
+      log(Object.keys(users).length, "activeUsers length");
       log(removeUserId, "left the server");
 
       //<--User List -->
@@ -35,7 +37,6 @@ function connectSocket(socket, io) {
       io.emit("userList", users);
     }
   });
-
 }
 
 module.exports = { connectSocket };

@@ -11,39 +11,63 @@ const GroupLobby = () => {
   const { user } = useAuthContext();
   const [onlineUsersCount, setOnlineUsersCount] = useState(0);
   const [users, setUsers] = useState({});
-  
-  const usersname  = user?.username
- 
-  // socket instance
+
+  let userName;
+  const getUsername = async () => {
+    try {
+      userName = await user?.username;
+    } catch (error) {
+      console.log(error, "Error getting username");
+    }
+  };
+  getUsername();
+
+  // socket instance and connection
   useEffect(() => {
     console.log("use effect ran");
+    // const getUsername = localStorage.getItem("user")
+
     clientSocket();
 
-    // creating userId to use as keys for socketID cause it doesn't change on every request or refresh using this to get real count value 
-    let userID = localStorage.getItem('userID');
-    if(!userID){
-      userID = `user-${Date.now()}`
-      localStorage.setItem('userID', userID);
+    // creating userId to use as keys for socketID cause it doesn't change on every request or refresh using this to get real count value
+    let userID = localStorage.getItem("userID");
+    if (!userID) {
+      userID = `user-${Date.now()}`;
+      localStorage.setItem("userID", userID);
     }
 
     socket.on("connect", () => {
-      console.log(socket.id)
+      console.log(socket.id);
+
+      socket.emit("userIdentifier", userID);
+
+      socket.emit("userName", userName);
+      //<--/activeUsers/-->
+
+      socket.on("activeUsers", (data) => {
+        setOnlineUsersCount(data);
+        console.log("activeUsers", data);
+      });
+
+      //<--/userList/-->
+      socket.on("userList", (data) => {
+        setUsers(data);
+        console.log("userList", data);
+      });
     });
 
-    socket.emit("userIdentifier", userID)
-    
-    socket.emit("userName", usersname);
+    //<--/Socket disconnection instance/-->
+    socket.on("disconnect", () => {
+      console.log("socket disconnected");
+      socket.on("activeusers", (data) => {
+        setOnlineUsersCount(data);
+      });
 
-    //<--//-->
-    socket.on("userList", (data)=>{
-      setUsers(data);
-      console.log("userList", data);
-    })
-
-    socket.on("activeUsers", (data)=>{
-      setOnlineUsersCount(data);
-      console.log("activeUsers", data);
-    })
+      //
+      socket.on("userList", (data) => {
+        setUsers(data);
+      });
+    });
   }, []);
 
   const navigate = useNavigate();
