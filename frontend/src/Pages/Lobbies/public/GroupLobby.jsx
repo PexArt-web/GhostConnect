@@ -68,6 +68,14 @@ const GroupLobby = () => {
         setUsers(data);
       });
     });
+
+    return () => {
+      // Cleanup on component unmount
+      socket.off("connect");
+      socket.off("disconnect");
+      socket.off("activeUsers");
+      socket.off("userList");
+    };
   }, []);
 
   const navigate = useNavigate();

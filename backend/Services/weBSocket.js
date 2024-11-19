@@ -1,25 +1,29 @@
 // let connectedSocket = new Set()
 const { log } = console;
-let userID;
+let userID = {}
 let users = {};
 
 function connectSocket(socket, io) {
   // saving each userID
   socket.on("userIdentifier", (id) => {
-    userID = id;
+    userID[id] = socket.id;
     log(id, "userID");
   });
   //using the ID as keys for each users usernames
   socket.on("userName", (username) => {
-    users[userID] = username;
-    log(users, "userName", username);
-    //<--Active Users -->
-    //emitting the number of active users to the frontend every time a new user joins or leaves the server
-    io.emit("activeUsers", Object.keys(users).length);
-    log(Object.keys(users).length, "length");
-    //<--User List -->
-    //emitting the whole user object to map username from frontend
-    socket.emit("userList", users);
+    const findId = Object.keys(users).find((key) === socket.id)
+    if (findId) {
+      users[userID] = username;
+      log(users, "userName", username);
+      //<--Active Users -->
+      //emitting the number of active users to the frontend every time a new user joins or leaves the server
+      io.emit("activeUsers", Object.keys(users).length);
+      log(Object.keys(users).length, "length");
+      //<--User List -->
+      //emitting the whole user object to map username from frontend
+      socket.emit("userList", users);
+    }
+    
   });
 
   //<--Socket Disconnections-->
