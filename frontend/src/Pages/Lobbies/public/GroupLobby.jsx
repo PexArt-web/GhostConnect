@@ -12,23 +12,12 @@ const GroupLobby = () => {
   const [onlineUsersCount, setOnlineUsersCount] = useState(0);
   const [users, setUsers] = useState({});
 
-  let userName;
-  const getUsername = async () => {
-    try {
-      userName = await user?.username;
-    } catch (error) {
-      console.log(error, "Error getting username");
-    }
-  };
-  getUsername();
+  const userName = user?.username;
 
   // socket instance and connection
   useEffect(() => {
     console.log("use effect ran");
-    // const getUsername = localStorage.getItem("user")
-
     clientSocket();
-
     // creating userId to use as keys for socketID cause it doesn't change on every request or refresh using this to get real count value
     let userID = localStorage.getItem("userID");
     if (!userID) {
@@ -38,34 +27,23 @@ const GroupLobby = () => {
 
     socket.on("connect", () => {
       console.log(socket.id);
+      //<-- User Details -->//
+      const userDetails = { id: userID, username: userName };
+      socket.emit("userDetails", userDetails);
+    });
 
-      socket.emit("userIdentifier", userID);
-
-      socket.emit("userName", userName);
-      //<--/activeUsers/-->
-
-      socket.on("activeUsers", (data) => {
-        setOnlineUsersCount(data);
-        console.log("activeUsers", data);
-      });
-
-      //<--/userList/-->
-      socket.on("userList", (data) => {
-        setUsers(data);
-        console.log("userList", data);
-      });
+    //<-- User Details -->//
+    socket.on("userRecords", ({ userCount, userList }) => {
+      setOnlineUsersCount(userCount);
+      setUsers(userList);
     });
 
     //<--/Socket disconnection instance/-->
     socket.on("disconnect", () => {
-      console.log("socket disconnected");
-      socket.on("activeusers", (data) => {
-        setOnlineUsersCount(data);
-      });
-
-      //
-      socket.on("userList", (data) => {
-        setUsers(data);
+      socket.on("userRecords", ({ userCount, userList }) => {
+        setOnlineUsersCount(userCount);
+        setUsers(userList);
+        console.log("userRecords", { userCount, userList });
       });
     });
 

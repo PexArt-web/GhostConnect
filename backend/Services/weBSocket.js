@@ -5,42 +5,33 @@ let users = {};
 
 function connectSocket(socket, io) {
   // saving each userID
-  socket.on("userIdentifier", (id) => {
+  socket.on("userDetails", ({ id, username }) => {
     userID[id] = socket.id;
     log(id, "userID");
-  });
-  //using the ID as keys for each users usernames
-  socket.on("userName", (username) => {
-    const findId = Object.keys(userID).find((key) => users[key] === socket.id);
-    if (findId) {
-      users[findId] = username;
-      log(users, "userName", username);
-      //<--Active Users -->
-      //emitting the number of active users to the frontend every time a new user joins or leaves the server
-      io.emit("activeUsers", Object.keys(users).length);
-      log(Object.keys(users).length, "length");
-      //<--User List -->
-      //emitting the whole user object to map username from frontend
-      io.emit("userList", users);
-    }else{
-      log("userName event fired before userIdentifier mapping.")
-    }
+    users[id] = username;
+    log(`User connected: ${id}, Username: ${username}`);
+    //<--Active Users count & User List  -->
+    const activeUser = Object.keys(users).length;
+    const userRegistry = { userCount: activeUser, userList: users };
+    io.emit("userRecords", userRegistry);
   });
 
   //<--Socket Disconnections-->
   socket.on("disconnect", () => {
-    const removeUserId = Object.keys(userID).find((index) => userID[index] === socket.id);
+    const removeUserId = Object.keys(userID).find(
+      (index) => userID[index] === socket.id
+    );
 
     if (removeUserId) {
       delete users[removeUserId];
       delete userID[removeUserId];
-      log(Object.keys(users).length, "activeUsers length");
+     
+      //<--Active Users count & User List  -->
+      const activeUser = Object.keys(users).length;
+      const userRegistry = { userCount: activeUser, userList: users };
+      io.emit("userRecords", userRegistry);
       log(removeUserId, "left the server");
-      //<--update activeUsers -->
-      io.emit("activeUsers", Object.keys(users).length);
-      //<--User List -->
-      //emitting the whole user object to map username from frontend
-      io.emit("userList", users);
+      log(activeUser, "activeUsers length");
     }
   });
 }
