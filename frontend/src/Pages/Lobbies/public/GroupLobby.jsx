@@ -1,5 +1,4 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useAuthContext } from "@/hooks/useAuthContext";
 import { requireAuth } from "@/services/Auth/middleware/requireAuth";
 import { clientSocket, socket } from "@/services/weBSocket";
 import SharedButton from "@/shared/component/SharedButton";
@@ -8,11 +7,10 @@ import { useNavigate } from "react-router-dom";
 
 const GroupLobby = () => {
   requireAuth();
-  const { user } = useAuthContext();
+  const  user  = JSON.parse(localStorage.getItem('user'))
+  const { username } = user
   const [onlineUsersCount, setOnlineUsersCount] = useState(0);
   const [users, setUsers] = useState({});
-
-  const userName = user?.username;
 
   // socket instance and connection
   useEffect(() => {
@@ -28,7 +26,7 @@ const GroupLobby = () => {
     socket.on("connect", () => {
       console.log(socket.id);
       //<-- User Details -->//
-      const userDetails = { id: userID, username: userName };
+      const userDetails = { id: userID, username: username };
       socket.emit("userDetails", userDetails);
     });
 
