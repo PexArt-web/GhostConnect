@@ -1,18 +1,29 @@
 import { requireAuth } from "@/services/Auth/middleware/requireAuth";
-import { useState } from "react";
+import { clientSocket, socket } from "@/services/weBSocket";
+import { useEffect, useState } from "react";
 import { FiSend, FiUsers } from "react-icons/fi";
 
 const GroupChat = () => {
   requireAuth();
-
-
+  const [onlineUsersCount, setOnlineUsersCount] = useState(0);
+  const [ users, setUsers ] = useState({});
+  useEffect(() => {
+    console.log('useEffect ran')
+    clientSocket()
+    socket.on('connect', () => console.log(socket.id))
+    socket.on("userRecords", ({ userCount, userList }) => {
+      setOnlineUsersCount(userCount);
+      console.log(onlineUsersCount , "count", userCount)
+      setUsers(userList);
+    });
+  }, []);
 
   const groupMembersData = [
     { id: 1, name: "Alice", avatar: "https://via.placeholder.com/40" },
     { id: 2, name: "Bob", avatar: "https://via.placeholder.com/40" },
     { id: 3, name: "Charlie", avatar: "https://via.placeholder.com/40" },
   ];
-``
+  ``;
   const [messages, setMessages] = useState([
     // Example messages
     { sender: "Alice", content: "Hey everyone!" },
@@ -37,7 +48,7 @@ const GroupChat = () => {
         </h2>
         <div className="flex items-center text-sm text-gray-400">
           <FiUsers className="mr-2" />
-          {groupMembersData.length} members online
+          {onlineUsersCount} members online
         </div>
       </div>
 

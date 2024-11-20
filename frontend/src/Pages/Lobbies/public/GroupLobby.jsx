@@ -7,20 +7,22 @@ import { useNavigate } from "react-router-dom";
 
 const GroupLobby = () => {
   requireAuth();
-  const  user  = JSON.parse(localStorage.getItem('user'))
-  const { username } = user
+  const user = JSON.parse(localStorage.getItem("user"));
+  const { username } = user;
   const [onlineUsersCount, setOnlineUsersCount] = useState(0);
   const [users, setUsers] = useState({});
+
+  let userID = localStorage.getItem("userID");
+
+  if (!userID) {
+    userID = `user-${Date.now()}`;
+    localStorage.setItem("userID", userID);
+  }
 
   // socket instance and connection
   useEffect(() => {
     clientSocket();
     // creating userId to use as keys for socketID cause it doesn't change on every request or refresh using this to get real count value
-    let userID = localStorage.getItem("userID");
-    if (!userID) {
-      userID = `user-${Date.now()}`;
-      localStorage.setItem("userID", userID);
-    }
 
     socket.on("connect", () => {
       //<-- User Details -->//
@@ -39,7 +41,6 @@ const GroupLobby = () => {
       socket.on("userRecords", ({ userCount, userList }) => {
         setOnlineUsersCount(userCount);
         setUsers(userList);
-        console.log("userRecords", { userCount, userList });
       });
     });
 
@@ -47,8 +48,7 @@ const GroupLobby = () => {
       // Cleanup on component unmount
       socket.off("connect");
       socket.off("disconnect");
-      socket.off("activeUsers");
-      socket.off("userList");
+      socket.off("userRecords");
     };
   }, []);
 
@@ -76,7 +76,9 @@ const GroupLobby = () => {
                 <AvatarImage src="https://github.com/shadcn.png" />
                 <AvatarFallback>CN</AvatarFallback>
               </Avatar>
-              <span className="text-gray-200 font-medium">{username}</span>
+              <span className="text-gray-200 font-medium">
+                {id === userID ? "You" : username}
+              </span>
             </div>
           ))}
         </div>
