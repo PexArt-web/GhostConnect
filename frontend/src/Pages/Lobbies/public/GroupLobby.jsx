@@ -14,7 +14,6 @@ const GroupLobby = () => {
 
   // socket instance and connection
   useEffect(() => {
-    console.log("use effect ran");
     clientSocket();
     // creating userId to use as keys for socketID cause it doesn't change on every request or refresh using this to get real count value
     let userID = localStorage.getItem("userID");
@@ -24,7 +23,6 @@ const GroupLobby = () => {
     }
 
     socket.on("connect", () => {
-      console.log(socket.id);
       //<-- User Details -->//
       const userDetails = { id: userID, username: username };
       socket.emit("userDetails", userDetails);
