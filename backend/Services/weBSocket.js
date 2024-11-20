@@ -1,6 +1,6 @@
 // let connectedSocket = new Set()
 const { log } = console;
-let userID = {}
+let userID = {};
 let users = {};
 
 function connectSocket(socket, io) {
@@ -11,9 +11,9 @@ function connectSocket(socket, io) {
   });
   //using the ID as keys for each users usernames
   socket.on("userName", (username) => {
-    const findId = Object.keys(users).find((key) === socket.id)
+    const findId = Object.keys(userID).find((key) => users[key] === socket.id);
     if (findId) {
-      users[userID] = username;
+      users[findId] = username;
       log(users, "userName", username);
       //<--Active Users -->
       //emitting the number of active users to the frontend every time a new user joins or leaves the server
@@ -21,21 +21,23 @@ function connectSocket(socket, io) {
       log(Object.keys(users).length, "length");
       //<--User List -->
       //emitting the whole user object to map username from frontend
-      socket.emit("userList", users);
+      io.emit("userList", users);
+    }else{
+      log("userName event fired before userIdentifier mapping.")
     }
-    
   });
 
   //<--Socket Disconnections-->
   socket.on("disconnect", () => {
-    const removeUserId = Object.keys(users).find((index) => index === userID);
+    const removeUserId = Object.keys(userID).find((index) => userID[index] === socket.id);
 
     if (removeUserId) {
       delete users[removeUserId];
-      io.emit("activeUsers", Object.keys(users).length);
+      delete userID[removeUserId];
       log(Object.keys(users).length, "activeUsers length");
       log(removeUserId, "left the server");
-
+      //<--update activeUsers -->
+      io.emit("activeUsers", Object.keys(users).length);
       //<--User List -->
       //emitting the whole user object to map username from frontend
       io.emit("userList", users);
