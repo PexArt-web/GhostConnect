@@ -1,9 +1,30 @@
-import { Input } from "@/components/ui/input"
+import { Input } from "@/components/ui/input";
 
-const SharedInput = ({placeholder, type, id, name, className, autoComplete , required}) => {
+const SharedInput = ({
+  placeholder,
+  type,
+  id,
+  name,
+  className,
+  autoComplete,
+  required,
+  onChange,
+  onKeyDown
+  
+}) => {
   return (
-   <Input placeholder={placeholder} type={type} id={id} name={name} className={className}  autoComplete={autoComplete} required={required}/>
-  )
-}
+    <Input
+      placeholder={placeholder}
+      type={type}
+      id={id}
+      name={name}
+      className={className}
+      autoComplete={autoComplete}
+      required={required}
+      onChange={onChange}
+      onKeyDown={onKeyDown}
+    />
+  );
+};
 
-export default SharedInput
+export default SharedInput;

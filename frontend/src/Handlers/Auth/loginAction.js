@@ -13,6 +13,6 @@ export const loginAction = async ({ request }) => {
 
     return { user: data };
   } catch (error) {
-    return { error: error.message };
+    return { error: error.message === "Error: getaddrinfo ENOTFOUND ghostconnect-shard-00-00.hjfmo.mongodb.net" ? "Error connecting Please Retry" : error.message  };
   }
 };

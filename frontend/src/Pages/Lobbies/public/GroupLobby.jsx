@@ -1,56 +1,40 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { requireAuth } from "@/services/Auth/middleware/requireAuth";
-import { clientSocket, socket } from "@/services/weBSocket";
+// import { clientSocket, socket } from "@/services/weBSocket";
 import SharedButton from "@/shared/component/SharedButton";
-import { useEffect, useState } from "react";
+import {  useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const GroupLobby = () => {
   requireAuth();
-  const user = JSON.parse(localStorage.getItem("user"));
-  const { username } = user;
   const [onlineUsersCount, setOnlineUsersCount] = useState(0);
   const [users, setUsers] = useState({});
-
   let userID = localStorage.getItem("userID");
-
-  if (!userID) {
-    userID = `user-${Date.now()}`;
-    localStorage.setItem("userID", userID);
-  }
-
+    //<-- DO NOT FORGET TO COME BACK TO FIX THIS PAGE SOCKET -->
   // socket instance and connection
-  useEffect(() => {
-    clientSocket();
-    // creating userId to use as keys for socketID cause it doesn't change on every request or refresh using this to get real count value
+  // useEffect(() => {
+  //   clientSocket();
+  //   //<-- User Details -->//
+  //   socket.on("userRecords", ({ userCount, userList }) => {
+  //     setOnlineUsersCount(userCount);
+  //     setUsers(userList);
+  //   });
 
-    socket.on("connect", () => {
-      //<-- User Details -->//
-      const userDetails = { id: userID, username: username };
-      socket.emit("userDetails", userDetails);
-    });
+  //   //<--/Socket disconnection instance/-->
+  //   socket.on("disconnect", () => {
+  //     socket.on("userRecords", ({ userCount, userList }) => {
+  //       setOnlineUsersCount(userCount);
+  //       setUsers(userList);
+  //     });
+  //   });
 
-    //<-- User Details -->//
-    socket.on("userRecords", ({ userCount, userList }) => {
-      setOnlineUsersCount(userCount);
-      setUsers(userList);
-    });
-
-    //<--/Socket disconnection instance/-->
-    socket.on("disconnect", () => {
-      socket.on("userRecords", ({ userCount, userList }) => {
-        setOnlineUsersCount(userCount);
-        setUsers(userList);
-      });
-    });
-
-    return () => {
-      // Cleanup on component unmount
-      socket.off("connect");
-      socket.off("disconnect");
-      socket.off("userRecords");
-    };
-  }, []);
+  //   return () => {
+  //     // Cleanup on component unmount
+  //     socket.off("connect");
+  //     socket.off("disconnect");
+  //     socket.off("userRecords");
+  //   };
+  // }, []);
 
   const navigate = useNavigate();
   const handleClick = () => {
@@ -86,9 +70,7 @@ const GroupLobby = () => {
 
       {/* Enter Chat Button */}
       <SharedButton
-        className={
-          "w-full max-w-xs py-3 bg-blue-500 text-white rounded-lg font-semibold hover:bg-blue-600 transition duration-200"
-        }
+        className="w-full max-w-xs py-3 bg-blue-500 text-white rounded-lg font-semibold hover:bg-blue-600 transition duration-200"
         label={"Enter Chat Room ➔"}
         handleClick={handleClick}
       />

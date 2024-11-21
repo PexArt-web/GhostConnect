@@ -12,6 +12,7 @@ function connectSocket(socket, io) {
     const userRegistry = { userCount: activeUser, userList: users };
     io.emit("userRecords", userRegistry);
   });
+ 
 
   //<--Socket Disconnections-->
   socket.on("disconnect", () => {

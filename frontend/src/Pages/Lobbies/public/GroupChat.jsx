@@ -1,28 +1,53 @@
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { requireAuth } from "@/services/Auth/middleware/requireAuth";
 import { clientSocket, socket } from "@/services/weBSocket";
+import SharedButton from "@/shared/component/SharedButton";
+import SharedInput from "@/shared/component/SharedInput";
 import { useEffect, useState } from "react";
 import { FiSend, FiUsers } from "react-icons/fi";
 
 const GroupChat = () => {
   requireAuth();
   const [onlineUsersCount, setOnlineUsersCount] = useState(0);
-  const [ users, setUsers ] = useState({});
+  const [users, setUsers] = useState({});
+  const user = JSON.parse(localStorage.getItem("user"));
+  const { username } = user;
+
+  // creating userId to use as keys for socketID cause it doesn't change on every request or refresh using this to get real count value
+  let userID = localStorage.getItem("userID");
+  if (!userID) {
+    userID = `user-${Date.now()}`;
+    localStorage.setItem("userID", userID);
+  }
   useEffect(() => {
-    console.log('useEffect ran')
-    clientSocket()
-    socket.on('connect', () => console.log(socket.id))
+    clientSocket();
+    socket.on("connect", () => {
+      //<--Emitting / sending User Details -->//
+      const userDetails = { id: userID, username: username };
+      socket.emit("userDetails", userDetails);
+    });
+    //<--Receiving User Details -->//
     socket.on("userRecords", ({ userCount, userList }) => {
       setOnlineUsersCount(userCount);
-      console.log(onlineUsersCount , "count", userCount)
       setUsers(userList);
     });
-  }, []);
 
-  const groupMembersData = [
-    { id: 1, name: "Alice", avatar: "https://via.placeholder.com/40" },
-    { id: 2, name: "Bob", avatar: "https://via.placeholder.com/40" },
-    { id: 3, name: "Charlie", avatar: "https://via.placeholder.com/40" },
-  ];
+    //<-- socket disconnection -->
+    socket.on("disconnect", () => {
+      socket.on("userRecords", ({ userCount, userList }) => {
+        setOnlineUsersCount(userCount);
+        setUsers(userList);
+      });
+    });
+
+    // Cleanup on component unmount
+    return () => {
+      socket.off("connect");
+      socket.off("disconnect");
+      socket.off("userRecords");
+    };
+  }, [userID, username]);
+
   ``;
   const [messages, setMessages] = useState([
     // Example messages
@@ -33,10 +58,16 @@ const GroupChat = () => {
 
   // Handle sending a message
   const handleSendMessage = () => {
-    if (newMessage.trim()) {
-      setMessages([...messages, { sender: "You", content: newMessage }]);
-      setNewMessage("");
-    }
+   alert("sent")
+   setMessages('Hello! ')
+  };
+
+  const handleChange = (e) => {
+    setNewMessage(e.target.value);
+  };
+
+  const handleKeyDown = (e) => {
+    e.key === "Enter" && handleSendMessage();
   };
 
   return (
@@ -48,20 +79,19 @@ const GroupChat = () => {
         </h2>
         <div className="flex items-center text-sm text-gray-400">
           <FiUsers className="mr-2" />
-          {onlineUsersCount} members online
+          {onlineUsersCount === 1 ? "Just You Online" : `${onlineUsersCount} members online`}
         </div>
       </div>
 
       {/* Online Members List */}
       <div className="flex overflow-x-auto p-4 bg-gray-800 space-x-4">
-        {groupMembersData.map((member) => (
-          <div key={member.id} className="flex flex-col items-center">
-            <img
-              src={member.avatar}
-              alt={`${member.name}'s avatar`}
-              className="w-12 h-12 rounded-full border-2 border-blue-500"
-            />
-            <span className="text-xs text-gray-300 mt-1">{member.name}</span>
+        {Object.entries(users).map(([id, username]) => (
+          <div key={id} className="flex flex-col items-center">
+            <Avatar>
+              <AvatarImage src="https://github.com/shadcn.png" />
+              <AvatarFallback>CN</AvatarFallback>
+            </Avatar>
+            <span className="text-xs text-gray-300 mt-1">{id === userID ? "You" : username}</span>
           </div>
         ))}
       </div>
@@ -92,20 +122,35 @@ const GroupChat = () => {
 
       {/* Message Input */}
       <div className="p-4 bg-gray-800 flex items-center">
-        <input
+        <SharedInput
+          type={"text"}
+          value={newMessage}
+          onChange={handleChange}
+          placeholder={"Type a message..."}
+          className={
+            "flex-1 px-4 py-2 rounded-lg bg-gray-700 text-white focus:outline-none"
+          }
+          onkeydown={handleKeyDown}
+        />
+        {/* <input
           type="text"
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
           placeholder="Type a message..."
           className="flex-1 px-4 py-2 rounded-lg bg-gray-700 text-white focus:outline-none"
           onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
+        /> */}
+        <SharedButton
+          className={"text-blue-400 text-2xl ml-2"}
+          handleClick={handleSendMessage}
+          label={<FiSend />}
         />
-        <button
+        {/* <button
           onClick={handleSendMessage}
           className="text-blue-400 text-2xl ml-2"
         >
           <FiSend />
-        </button>
+        </button> */}
       </div>
     </div>
   );
