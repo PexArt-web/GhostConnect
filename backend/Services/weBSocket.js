@@ -29,10 +29,12 @@ function joinRoom(socket, roomName) {
     log(username, "username already");
     socket.join(roomName);
     socket.emit("alert", `You Joined the room ${roomName}`);
+    log(`alert You Joined the room ${roomName}`)
     socket.to(roomName).emit("roomAlert", `${username} has joined the room`);
-  } else {
-    log("user not found");
-  }
+    log(`to group : alert You Joined the room ${roomName}`)
+  } //else {
+    //log("user not found");
+  //}
 }
 //
 // <-- Leave Room () -->
@@ -43,9 +45,10 @@ function leaveRoom(socket, roomName) {
     log(username, "username already");
     socket.leave(roomName);
     socket.to(roomName).emit("roomAlert", `${username} left the room`);
-  } else {
-    log("user not found");
-  }
+    log(`to group : alert You left the room ${roomName}`)
+  } //else {
+    //log("user not found");
+  //}
 }
 //
 function connectSocket(socket, io) {

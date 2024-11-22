@@ -25,17 +25,19 @@ const GroupChat = () => {
       //<--Emitting / sending User Details -->//
       const userDetails = { id: userID, username: username };
       socket.emit("userDetails", userDetails);
+      //<-- broadcast roomJoining to whole room -->
+      socket.emit("joinRoom", "GhostConnect");
+      //
     });
+
     //<--Receiving User Details -->//
     socket.on("userRecords", ({ userCount, userList }) => {
       setOnlineUsersCount(userCount);
       setUsers(userList);
     });
 
-    //<-- broadcast roomJoining to whole room -->
-    socket.emit("joinRoom", "GhostConnect");
     //<-- broadcast roomLeaving -->
-    socket.emit("leaveRoom", "GhostConnect");
+    // socket.emit("leaveRoom", "GhostConnect");
     //<-- socket disconnection -->
     socket.on("disconnect", () => {
       localStorage.removeItem("userID");
