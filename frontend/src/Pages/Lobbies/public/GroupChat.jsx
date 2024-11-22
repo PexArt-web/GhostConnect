@@ -32,8 +32,13 @@ const GroupChat = () => {
       setUsers(userList);
     });
 
+    //<-- broadcast roomJoining to whole room -->
+    socket.emit("joinRoom", "GhostConnect");
+    //<-- broadcast roomLeaving -->
+    socket.emit("leaveRoom", "GhostConnect");
     //<-- socket disconnection -->
     socket.on("disconnect", () => {
+      localStorage.removeItem("userID");
       socket.on("userRecords", ({ userCount, userList }) => {
         setOnlineUsersCount(userCount);
         setUsers(userList);
@@ -58,8 +63,8 @@ const GroupChat = () => {
 
   // Handle sending a message
   const handleSendMessage = () => {
-   alert("sent")
-   setMessages('Hello! ')
+    alert("sent");
+    setMessages("Hello! ");
   };
 
   const handleChange = (e) => {
@@ -79,7 +84,9 @@ const GroupChat = () => {
         </h2>
         <div className="flex items-center text-sm text-gray-400">
           <FiUsers className="mr-2" />
-          {onlineUsersCount === 1 ? "Just You Online" : `${onlineUsersCount} members online`}
+          {onlineUsersCount === 1
+            ? "Just You Online"
+            : `${onlineUsersCount} members online`}
         </div>
       </div>
 
@@ -91,7 +98,9 @@ const GroupChat = () => {
               <AvatarImage src="https://github.com/shadcn.png" />
               <AvatarFallback>CN</AvatarFallback>
             </Avatar>
-            <span className="text-xs text-gray-300 mt-1">{id === userID ? "You" : username}</span>
+            <span className="text-xs text-gray-300 mt-1">
+              {id === userID ? "You" : username}
+            </span>
           </div>
         ))}
       </div>
@@ -132,25 +141,11 @@ const GroupChat = () => {
           }
           onkeydown={handleKeyDown}
         />
-        {/* <input
-          type="text"
-          value={newMessage}
-          onChange={(e) => setNewMessage(e.target.value)}
-          placeholder="Type a message..."
-          className="flex-1 px-4 py-2 rounded-lg bg-gray-700 text-white focus:outline-none"
-          onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
-        /> */}
         <SharedButton
           className={"text-blue-400 text-2xl ml-2"}
           handleClick={handleSendMessage}
           label={<FiSend />}
         />
-        {/* <button
-          onClick={handleSendMessage}
-          className="text-blue-400 text-2xl ml-2"
-        >
-          <FiSend />
-        </button> */}
       </div>
     </div>
   );
