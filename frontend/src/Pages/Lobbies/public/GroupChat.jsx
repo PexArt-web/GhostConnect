@@ -10,63 +10,62 @@ const GroupChat = () => {
   requireAuth();
   const [onlineUsersCount, setOnlineUsersCount] = useState(0);
   const [users, setUsers] = useState({});
+  const [alertToSelf, setAlertToSelf] = useState([]);
   const user = JSON.parse(localStorage.getItem("user"));
   const { username } = user;
 
-  // creating userId to use as keys for socketID cause it doesn't change on every request or refresh using this to get real count value
   let userID = localStorage.getItem("userID");
   if (!userID) {
     userID = `user-${Date.now()}`;
     localStorage.setItem("userID", userID);
   }
+
   useEffect(() => {
     clientSocket();
+
     socket.on("connect", () => {
-      //<--Emitting / sending User Details -->//
       const userDetails = { id: userID, username: username };
       socket.emit("userDetails", userDetails);
-      //<-- broadcast roomJoining to whole room -->
       socket.emit("joinRoom", "GhostConnect");
-      //
     });
 
-    //<--Receiving User Details -->//
     socket.on("userRecords", ({ userCount, userList }) => {
       setOnlineUsersCount(userCount);
       setUsers(userList);
     });
 
-    //<-- broadcast roomLeaving -->
-    // socket.emit("leaveRoom", "GhostConnect");
-    //<-- socket disconnection -->
-    socket.on("disconnect", () => {
-      localStorage.removeItem("userID");
-      socket.on("userRecords", ({ userCount, userList }) => {
-        setOnlineUsersCount(userCount);
-        setUsers(userList);
-      });
+    socket.on("alertToSelf", (message) => {
+      alert(message);
+      setAlertToSelf((prev) => [...prev, message]);
+      console.log(message, "self alert");
     });
 
-    // Cleanup on component unmount
+    socket.on("roomAlert", (message) => {
+      alert(message);
+      console.log(message, "group alert");
+    });
+
     return () => {
       socket.off("connect");
       socket.off("disconnect");
       socket.off("userRecords");
+      socket.off("alertToSelf");
+      socket.off("roomAlert");
     };
   }, [userID, username]);
 
-  ``;
   const [messages, setMessages] = useState([
-    // Example messages
     { sender: "Alice", content: "Hey everyone!" },
-    { sender: "Bola", content: "Hello! How's it going?" },
+    { sender: "You", content: "Hello! How's it going?" },
   ]);
   const [newMessage, setNewMessage] = useState("");
 
-  // Handle sending a message
   const handleSendMessage = () => {
-    alert("sent");
-    setMessages("Hello! ");
+    setMessages((prev) => [
+      ...prev,
+      { sender: "You", content: newMessage.trim() },
+    ]);
+    setNewMessage(""); 
   };
 
   const handleChange = (e) => {
@@ -74,7 +73,7 @@ const GroupChat = () => {
   };
 
   const handleKeyDown = (e) => {
-    e.key === "Enter" && handleSendMessage();
+    if (e.key === "Enter") handleSendMessage();
   };
 
   return (
@@ -109,6 +108,17 @@ const GroupChat = () => {
 
       {/* Chat Messages */}
       <div className="flex-1 overflow-y-auto p-4">
+        {/* Alert Messages */}
+        {alertToSelf.map((alertText, index) => (
+          <div
+            key={index}
+            className="text-blue-800 px-2 py-2 rounded-lg shadow-sm text-center"
+          >
+            <span className="italic text-sm">{alertText}</span>
+          </div>
+        ))}
+
+        {/* Chat Messages */}
         {messages.map((message, index) => (
           <div key={index} className="mb-4">
             <div
@@ -141,7 +151,7 @@ const GroupChat = () => {
           className={
             "flex-1 px-4 py-2 rounded-lg bg-gray-700 text-white focus:outline-none"
           }
-          onkeydown={handleKeyDown}
+          onKeyDown={handleKeyDown}
         />
         <SharedButton
           className={"text-blue-400 text-2xl ml-2"}
