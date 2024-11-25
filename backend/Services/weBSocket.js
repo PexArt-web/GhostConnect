@@ -1,3 +1,5 @@
+const Message = require("../Models/Blueprint/messageModel");
+
 const { log } = console;
 let userID = {};
 let users = {};
@@ -19,7 +21,6 @@ const confirmUser = (socket) => {
 //<--Join Room -->
 function joinRoom(socket, roomName) {
   if (!roomName || typeof roomName !== "string") {
-    log("Invalid room name");
     return;
   }
 
@@ -29,7 +30,7 @@ function joinRoom(socket, roomName) {
     socket.join(roomName);
     socket.emit(
       "alertToSelf",
-      `You’ve joined ${roomName}! Let the conversations begin!`
+      `You've joined ${roomName}! Let the conversations begin!`
     );
 
     socket
@@ -64,7 +65,20 @@ function connectSocket(socket, io) {
   //
   //<--send & receive messages -->
   //receiveMessage
-  socket.on("roomMessage", ({ roomName, messageData }) => {
+  socket.on("roomMessage", async ({ roomName, messageData }) => {
+    const { sender, content, senderID, dateTime } = messageData;
+    const message = new Message({
+      sender,
+      content,
+      senderID,
+      dateTime,
+    });
+    const saveMessageDataToDatabase = await message.save();
+    if(!saveMessageDataToDatabase) {
+      log("Failed to save message to the database", "roomMessage");
+      return;
+    }
+    
     io.in(roomName).emit("newMessage", messageData);
     log(messageData, "receiveMessage");
   });
@@ -88,6 +102,9 @@ function connectSocket(socket, io) {
       //<--Active Users count & User List  -->
       emitActiveUsersDetails(io);
     }
+    socket.on("leaveRoom", (roomName) => {
+      leaveRoom(socket, roomName);
+    });
   });
 }
 

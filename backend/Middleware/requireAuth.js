@@ -1,5 +1,4 @@
 const jwt = require("jsonwebtoken")
-const authToken = process.env.AUTH_TOKEN
 
 const requireAuth = async (req, res, next) => {
     // destructing the authorization from the req.headers

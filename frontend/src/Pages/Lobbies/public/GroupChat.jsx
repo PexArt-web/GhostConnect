@@ -65,7 +65,7 @@ const GroupChat = () => {
   }, [userID, username]);
 
   const handleSendMessage = () => {
-    if (!newMessage) return;
+    if (!newMessage.trim()) return;
     const messageData = {
       sender: username,
       content: newMessage,
