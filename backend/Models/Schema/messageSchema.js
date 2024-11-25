@@ -13,7 +13,6 @@ const messageSchema = new Schema(
     },
     content: {
       type: String,
-      // type: Schema.Types.Mixed, // to accept multiple || any data types
       required: true,
       trim: true,
     },
