@@ -33,6 +33,5 @@ connectDB((error) => {
     return;
   } else {
     log(`Error connecting to database:, ${error}`);
-    process.exit(1);
   }
 });
