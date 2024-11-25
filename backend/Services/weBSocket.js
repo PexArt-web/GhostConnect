@@ -31,7 +31,7 @@ function joinRoom(socket, roomName) {
       "alertToSelf",
       `You’ve joined ${roomName}! Let the conversations begin!`
     );
-   
+
     socket
       .to(roomName)
       .emit("roomAlert", `${username} has just joined ${roomName}! Say hi!`);
@@ -60,6 +60,13 @@ function connectSocket(socket, io) {
   //<--Join Ghost Connect Chat -->
   socket.on("joinRoom", (roomName) => {
     joinRoom(socket, roomName);
+  });
+  //
+  //<--send & receive messages -->
+  //receiveMessage
+  socket.on("roomMessage", ({ roomName, messageData }) => {
+    io.in(roomName).emit("newMessage", messageData);
+    log(messageData, "receiveMessage");
   });
   //
 

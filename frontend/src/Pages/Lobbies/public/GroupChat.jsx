@@ -10,9 +10,11 @@ const GroupChat = () => {
   requireAuth();
   const [onlineUsersCount, setOnlineUsersCount] = useState(0);
   const [users, setUsers] = useState({});
-  const [alertToSelf, setAlertToSelf] = useState([]);
+  const [dataStream, setDataStream] = useState([]);
+  const [newMessage, setNewMessage] = useState("");
   const user = JSON.parse(localStorage.getItem("user"));
   const { username } = user;
+  const roomName = "GhostConnect";
 
   let userID = localStorage.getItem("userID");
   if (!userID) {
@@ -26,7 +28,7 @@ const GroupChat = () => {
     socket.on("connect", () => {
       const userDetails = { id: userID, username: username };
       socket.emit("userDetails", userDetails);
-      socket.emit("joinRoom", "GhostConnect");
+      socket.emit("joinRoom", roomName);
     });
 
     socket.on("userRecords", ({ userCount, userList }) => {
@@ -35,14 +37,21 @@ const GroupChat = () => {
     });
 
     socket.on("alertToSelf", (message) => {
-      alert(message);
-      setAlertToSelf((prev) => [...prev, message]);
-      console.log(message, "self alert");
+      setDataStream((prev) => [
+        ...prev,
+        { type: "alert", content: message, dateTime: new Date() },
+      ]);
     });
 
     socket.on("roomAlert", (message) => {
-      alert(message);
-      console.log(message, "group alert");
+      setDataStream((prev) => [
+        ...prev,
+        { type: "alert", content: message, dateTime: new Date() },
+      ]);
+    });
+
+    socket.on("newMessage", (message) => {
+      setDataStream((prev) => [...prev, { type: "message", ...message }]);
     });
 
     return () => {
@@ -51,21 +60,20 @@ const GroupChat = () => {
       socket.off("userRecords");
       socket.off("alertToSelf");
       socket.off("roomAlert");
+      socket.off("newMessage");
     };
   }, [userID, username]);
 
-  const [messages, setMessages] = useState([
-    { sender: "Alice", content: "Hey everyone!" },
-    { sender: "You", content: "Hello! How's it going?" },
-  ]);
-  const [newMessage, setNewMessage] = useState("");
-
   const handleSendMessage = () => {
-    setMessages((prev) => [
-      ...prev,
-      { sender: "You", content: newMessage.trim() },
-    ]);
-    setNewMessage(""); 
+    if (!newMessage) return;
+    const messageData = {
+      sender: username,
+      content: newMessage,
+      senderID: userID,
+      dateTime: new Date(),
+    };
+    socket.emit("roomMessage", { roomName, messageData });
+    setNewMessage("");
   };
 
   const handleChange = (e) => {
@@ -80,10 +88,10 @@ const GroupChat = () => {
     <div className="flex flex-col h-screen bg-gray-900 text-white">
       {/* Header */}
       <div className="flex items-center justify-between p-4 bg-gray-800 shadow-lg">
-        <h2 className="text-xl font-semibold">
+        <h2 className="text-lg sm:text-xl font-semibold text-center">
           Welcome To the Invisible Connect
         </h2>
-        <div className="flex items-center text-sm text-gray-400">
+        <div className="flex items-center text-xs sm:text-sm text-gray-400">
           <FiUsers className="mr-2" />
           {onlineUsersCount === 1
             ? "Just You Online"
@@ -91,70 +99,70 @@ const GroupChat = () => {
         </div>
       </div>
 
-      {/* Online Members List */}
+      {/* Online Members */}
       <div className="flex overflow-x-auto p-4 bg-gray-800 space-x-4">
         {Object.entries(users).map(([id, username]) => (
-          <div key={id} className="flex flex-col items-center">
+          <div
+            key={id}
+            className="flex flex-col items-center text-center space-y-1"
+          >
             <Avatar>
               <AvatarImage src="https://github.com/shadcn.png" />
               <AvatarFallback>CN</AvatarFallback>
             </Avatar>
-            <span className="text-xs text-gray-300 mt-1">
+            <span className="text-xs sm:text-sm text-gray-300">
               {id === userID ? "You" : username}
             </span>
           </div>
         ))}
       </div>
 
-      {/* Chat Messages */}
-      <div className="flex-1 overflow-y-auto p-4">
-        {/* Alert Messages */}
-        {alertToSelf.map((alertText, index) => (
-          <div
-            key={index}
-            className="text-blue-800 px-2 py-2 rounded-lg shadow-sm text-center"
-          >
-            <span className="italic text-sm">{alertText}</span>
-          </div>
+      {/* Chat Stream */}
+      <ul className="flex-1 overflow-y-auto p-4 space-y-4">
+        {dataStream.map((item, index) => (
+          <li key={index} className="mb-4">
+            {item.type === "alert" ? (
+              <div className="text-blue-400 text-center italic text-sm">
+                {item.content}
+              </div>
+            ) : (
+              <div>
+                <div
+                  className={`${
+                    item.senderID === userID
+                      ? "text-blue-400 ml-auto"
+                      : "text-green-400"
+                  } font-semibold text-sm sm:text-base`}
+                >
+                  {item.senderID === userID ? "You" : item.sender}
+                </div>
+                <div
+                  className={`max-w-xs sm:max-w-md p-3 rounded-lg ${
+                    item.senderID === userID
+                      ? "bg-blue-600 text-white ml-auto"
+                      : "bg-gray-700 text-gray-300"
+                  }`}
+                >
+                  {item.content}
+                </div>
+              </div>
+            )}
+          </li>
         ))}
-
-        {/* Chat Messages */}
-        {messages.map((message, index) => (
-          <div key={index} className="mb-4">
-            <div
-              className={`${
-                message.sender === "You" ? "text-blue-400" : "text-green-400"
-              } font-semibold`}
-            >
-              {message.sender}
-            </div>
-            <div
-              className={`max-w-xs p-3 rounded-lg ${
-                message.sender === "You"
-                  ? "bg-blue-600 text-white ml-auto"
-                  : "bg-gray-700 text-gray-300"
-              }`}
-            >
-              {message.content}
-            </div>
-          </div>
-        ))}
-      </div>
+      </ul>
 
       {/* Message Input */}
-      <div className="p-4 bg-gray-800 flex items-center">
+      <div className="p-4 bg-gray-800 flex items-center space-x-2">
         <SharedInput
-          type={"text"}
+          type="text"
           value={newMessage}
           onChange={handleChange}
-          placeholder={"Type a message..."}
-          className={
-            "flex-1 px-4 py-2 rounded-lg bg-gray-700 text-white focus:outline-none"
-          }
+          placeholder="Type a message..."
+          className="flex-1 px-4 py-2 rounded-lg bg-gray-700 text-white focus:outline-none text-sm sm:text-base"
           onKeyDown={handleKeyDown}
         />
         <SharedButton
-          className={"text-blue-400 text-2xl ml-2"}
+          className="text-blue-400 text-2xl ml-2"
           handleClick={handleSendMessage}
           label={<FiSend />}
         />

@@ -9,7 +9,8 @@ const SharedInput = ({
   autoComplete,
   required,
   onChange,
-  onKeyDown
+  onKeyDown,
+  value
   
 }) => {
   return (
@@ -18,6 +19,7 @@ const SharedInput = ({
       type={type}
       id={id}
       name={name}
+      value={value}
       className={className}
       autoComplete={autoComplete}
       required={required}
