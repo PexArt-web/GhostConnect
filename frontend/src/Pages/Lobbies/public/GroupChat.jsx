@@ -39,14 +39,14 @@ const GroupChat = () => {
     socket.on("alertToSelf", (message) => {
       setDataStream((prev) => [
         ...prev,
-        { type: "alert", content: message, dateTime: new Date() },
+        { type: "alert", content: message },
       ]);
     });
 
     socket.on("roomAlert", (message) => {
       setDataStream((prev) => [
         ...prev,
-        { type: "alert", content: message, dateTime: new Date() },
+        { type: "alert", content: message },
       ]);
     });
 
@@ -69,8 +69,7 @@ const GroupChat = () => {
     const messageData = {
       sender: username,
       content: newMessage,
-      senderID: userID,
-      dateTime: new Date(),
+      senderID: userID
     };
     socket.emit("roomMessage", { roomName, messageData });
     setNewMessage("");

@@ -71,7 +71,6 @@ function connectSocket(socket, io) {
       sender,
       content,
       senderID,
-      dateTime,
     });
     const saveMessageDataToDatabase = await message.save();
     if(!saveMessageDataToDatabase) {
