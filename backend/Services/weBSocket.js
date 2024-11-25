@@ -77,8 +77,8 @@ function connectSocket(socket, io) {
       log("Failed to save message to the database", "roomMessage");
       return;
     }
-    
-    io.in(roomName).emit("newMessage", messageData);
+    log(message._id, "Message", message.id , "mess");
+    io.in(roomName).emit("newMessage", {messageID: message._id, messageData: message});
     log(messageData, "receiveMessage");
   });
   //

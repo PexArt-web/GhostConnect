@@ -119,7 +119,10 @@ const GroupChat = () => {
       {/* Chat Stream */}
       <ul className="flex-1 overflow-y-auto p-4 space-y-4">
         {dataStream.map((item, index) => (
+          
           <li key={index} className="mb-4">
+            {console.log(dataStream, "data stream")}
+            {console.log(item, "item")}
             {item.type === "alert" ? (
               <div className="text-blue-400 text-center italic text-sm">
                 {item.content}
