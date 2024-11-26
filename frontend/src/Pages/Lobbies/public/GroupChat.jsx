@@ -50,8 +50,9 @@ const GroupChat = () => {
       ]);
     });
 
-    socket.on("newMessage", (message) => {
-      setDataStream((prev) => [...prev, { type: "message", ...message }]);
+    socket.on("newMessage", ({messageID, messageData}) => {
+      console.log(messageID, messageData , "data and message")
+      setDataStream((prev) => [...prev, { type: "message", ...messageData  , ID: messageID}]);
     });
 
     return () => {
@@ -82,6 +83,8 @@ const GroupChat = () => {
   const handleKeyDown = (e) => {
     if (e.key === "Enter") handleSendMessage();
   };
+
+  
 
   return (
     <div className="flex flex-col h-screen bg-gray-900 text-white">
