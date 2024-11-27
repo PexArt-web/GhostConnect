@@ -50,9 +50,9 @@ const GroupChat = () => {
       ]);
     });
 
-    socket.on("newMessage", ({messageID, messageData}) => {
-      console.log(messageID, messageData , "data and message")
-      setDataStream((prev) => [...prev, { type: "message", ...messageData  , ID: messageID}]);
+    socket.on("newMessage", (messageData) => {
+      console.log(messageData , "data and message")
+      setDataStream((prev) => [...prev, { type: "message", ...messageData }]);
     });
 
     return () => {
@@ -83,6 +83,10 @@ const GroupChat = () => {
   const handleKeyDown = (e) => {
     if (e.key === "Enter") handleSendMessage();
   };
+
+  const updateMessage = (item) => {
+    alert(item._id, "update message")
+  }
 
   
 
@@ -142,6 +146,7 @@ const GroupChat = () => {
                   {item.senderID === userID ? "You" : item.sender}
                 </div>
                 <div
+                onClick={()=>updateMessage(item)}
                   className={`max-w-xs sm:max-w-md p-3 rounded-lg ${
                     item.senderID === userID
                       ? "bg-blue-600 text-white ml-auto"

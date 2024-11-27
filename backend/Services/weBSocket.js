@@ -78,7 +78,7 @@ function connectSocket(socket, io) {
       return;
     }
     log(message._id, "Message", message.id , "mess");
-    io.in(roomName).emit("newMessage", {messageID: message._id, messageData: message});
+    io.in(roomName).emit("newMessage", saveMessageDataToDatabase);
     log(messageData, "receiveMessage");
   });
   //
