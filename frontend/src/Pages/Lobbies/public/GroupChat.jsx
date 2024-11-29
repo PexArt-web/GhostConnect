@@ -82,12 +82,13 @@ const GroupChat = () => {
     if (e.key === "Enter") handleSendMessage();
   };
 
- 
+  const handleMessageUpdate = (item) => {
+    console.log(item, "update message");
+  };
 
-  const load = [
-    { id: 1, icons: <MdEdit />, label: "Update message" },
-    { id: 2, icons: <FaTrash />, label: "Delete message" },
-  ];
+  const handleMessageDelete = (item) => {
+    console.log(item, "delete message");
+  };
   return (
     <div className="flex flex-col h-screen bg-gray-900 text-white">
       {/* Header */}
@@ -143,7 +144,6 @@ const GroupChat = () => {
                   {item.senderID === userID ? "You" : item.sender}
                 </div>
                 <div
-                 
                   className={`max-w-xs sm:max-w-md p-3 rounded-lg ${
                     item.senderID === userID
                       ? "bg-blue-600 text-white ml-auto"
@@ -152,9 +152,16 @@ const GroupChat = () => {
                 >
                   <ul className="float-end">
                     <li>
-                     <SharedDropDown label={<TfiMoreAlt/>} loadIcon1={<MdEdit onClick={(e)=>alert(e.target.value)} />} loadLabel1={"Update"} loadIcon2={<FaTrash/>} loadLabel2={"Delete"}/>
+                      <SharedDropDown
+                        label={<TfiMoreAlt />}
+                        loadIcon1={<MdEdit />}
+                        loadLabel1={"Update"}
+                        loadIcon2={<FaTrash />}
+                        loadLabel2={"Delete"}
+                        handleUpdate={()=>handleMessageUpdate(item)}
+                        handleDelete={()=>handleMessageDelete(item)}
+                      />
                     </li>
-                    
                   </ul>
                   {item.content}
                 </div>
