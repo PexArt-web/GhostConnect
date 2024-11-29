@@ -2,9 +2,13 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { requireAuth } from "@/services/Auth/middleware/requireAuth";
 import { clientSocket, socket } from "@/services/weBSocket";
 import SharedButton from "@/shared/component/SharedButton";
+import SharedDropDown from "@/shared/component/SharedDropDown";
 import SharedInput from "@/shared/component/SharedInput";
 import { useEffect, useState } from "react";
 import { FiSend, FiUsers } from "react-icons/fi";
+import { TfiMoreAlt } from "react-icons/tfi";
+import { MdEdit } from "react-icons/md";
+import { FaTrash } from "react-icons/fa";
 
 const GroupChat = () => {
   requireAuth();
@@ -37,21 +41,15 @@ const GroupChat = () => {
     });
 
     socket.on("alertToSelf", (message) => {
-      setDataStream((prev) => [
-        ...prev,
-        { type: "alert", content: message },
-      ]);
+      setDataStream((prev) => [...prev, { type: "alert", content: message }]);
     });
 
     socket.on("roomAlert", (message) => {
-      setDataStream((prev) => [
-        ...prev,
-        { type: "alert", content: message },
-      ]);
+      setDataStream((prev) => [...prev, { type: "alert", content: message }]);
     });
 
     socket.on("newMessage", (messageData) => {
-      console.log(messageData , "data and message")
+      console.log(messageData, "data and message");
       setDataStream((prev) => [...prev, { type: "message", ...messageData }]);
     });
 
@@ -70,7 +68,7 @@ const GroupChat = () => {
     const messageData = {
       sender: username,
       content: newMessage,
-      senderID: userID
+      senderID: userID,
     };
     socket.emit("roomMessage", { roomName, messageData });
     setNewMessage("");
@@ -84,12 +82,12 @@ const GroupChat = () => {
     if (e.key === "Enter") handleSendMessage();
   };
 
-  const updateMessage = (item) => {
-    alert(item._id, "update message")
-  }
+ 
 
-  
-
+  const load = [
+    { id: 1, icons: <MdEdit />, label: "Update message" },
+    { id: 2, icons: <FaTrash />, label: "Delete message" },
+  ];
   return (
     <div className="flex flex-col h-screen bg-gray-900 text-white">
       {/* Header */}
@@ -126,7 +124,6 @@ const GroupChat = () => {
       {/* Chat Stream */}
       <ul className="flex-1 overflow-y-auto p-4 space-y-4">
         {dataStream.map((item, index) => (
-          
           <li key={index} className="mb-4">
             {console.log(dataStream, "data stream")}
             {console.log(item, "item")}
@@ -146,13 +143,19 @@ const GroupChat = () => {
                   {item.senderID === userID ? "You" : item.sender}
                 </div>
                 <div
-                onClick={()=>updateMessage(item)}
+                 
                   className={`max-w-xs sm:max-w-md p-3 rounded-lg ${
                     item.senderID === userID
                       ? "bg-blue-600 text-white ml-auto"
                       : "bg-gray-700 text-gray-300"
                   }`}
                 >
+                  <ul className="float-end">
+                    <li>
+                     <SharedDropDown label={<TfiMoreAlt/>} loadIcon1={<MdEdit onClick={(e)=>alert(e.target.value)} />} loadLabel1={"Update"} loadIcon2={<FaTrash/>} loadLabel2={"Delete"}/>
+                    </li>
+                    
+                  </ul>
                   {item.content}
                 </div>
               </div>
