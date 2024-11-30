@@ -1,12 +1,16 @@
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 
-
-const SharedButton = ({type, className, disabled, label, handleClick}) => {
+const SharedButton = ({ type, className, disabled, label, handleClick }) => {
   return (
-  <Button type={type} className={className} disabled={disabled} onClick={handleClick}>
-    {label}
-  </Button>
-  ) 
-}
+    <Button
+      type={type}
+      className={className}
+      disabled={disabled}
+      onClick={handleClick}
+    >
+      {label}
+    </Button>
+  );
+};
 
-export default SharedButton
+export default SharedButton;

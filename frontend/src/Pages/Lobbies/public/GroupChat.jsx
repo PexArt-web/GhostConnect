@@ -9,6 +9,7 @@ import { FiSend, FiUsers } from "react-icons/fi";
 import { TfiMoreAlt } from "react-icons/tfi";
 import { MdEdit } from "react-icons/md";
 import { FaTrash } from "react-icons/fa";
+import SharedDialog from "@/shared/component/SharedDialog";
 
 const GroupChat = () => {
   requireAuth();
@@ -16,6 +17,8 @@ const GroupChat = () => {
   const [users, setUsers] = useState({});
   const [dataStream, setDataStream] = useState([]);
   const [newMessage, setNewMessage] = useState("");
+  const [openDialog, setOpenDialog] = useState(false);
+  const [ messageUpdate , setMessageUpdate ] = useState('')
   const user = JSON.parse(localStorage.getItem("user"));
   const { username } = user;
   const roomName = "GhostConnect";
@@ -83,11 +86,28 @@ const GroupChat = () => {
   };
 
   const handleMessageUpdate = (item) => {
+    if(!item.content) return;
+    setOpenDialog((prevState) => !prevState);
+    setMessageUpdate(item.content);
     console.log(item, "update message");
   };
+  
+  const editMessageUpdate = (e) => {
+    setMessageUpdate(e.target.value);
+    
+  }
 
   const handleMessageDelete = (item) => {
     console.log(item, "delete message");
+  };
+
+  const cancelUpdateMessage = () => {
+    setOpenDialog((prevState) => !prevState);
+  };
+
+  const continueUpdateMessage = () => {
+    alert("sent");
+    cancelUpdateMessage();
   };
   return (
     <div className="flex flex-col h-screen bg-gray-900 text-white">
@@ -154,16 +174,24 @@ const GroupChat = () => {
                     <li>
                       <SharedDropDown
                         label={<TfiMoreAlt />}
-                        loadIcon1={<MdEdit />}
                         loadLabel1={"Update"}
+                        loadIcon1={<MdEdit />}
                         loadIcon2={<FaTrash />}
                         loadLabel2={"Delete"}
-                        handleUpdate={()=>handleMessageUpdate(item)}
-                        handleDelete={()=>handleMessageDelete(item)}
+                        handleUpdate={() => handleMessageUpdate(item)}
+                        handleDelete={() => handleMessageDelete(item)}
                       />
                     </li>
                   </ul>
                   {item.content}
+                  <SharedDialog
+                    open={openDialog}
+                    title={"Edit Message"}
+                    handleClose={cancelUpdateMessage}
+                    sendUpdate={continueUpdateMessage}
+                    value={messageUpdate}
+                    editMessage={editMessageUpdate}
+                  />
                 </div>
               </div>
             )}
@@ -190,5 +218,4 @@ const GroupChat = () => {
     </div>
   );
 };
-
 export default GroupChat;
