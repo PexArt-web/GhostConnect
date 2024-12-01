@@ -10,6 +10,7 @@ import { TfiMoreAlt } from "react-icons/tfi";
 import { MdEdit } from "react-icons/md";
 import { FaTrash } from "react-icons/fa";
 import SharedDialog from "@/shared/component/SharedDialog";
+import moment from "moment";
 
 const GroupChat = () => {
   requireAuth();
@@ -56,22 +57,25 @@ const GroupChat = () => {
       setDataStream((prev) => [...prev, { type: "message", ...messageData }]);
     });
 
-
     //<--update message stream-->
-    socket.on("updateMessage", (messageUpdate) =>{
-      setDataStream((prevState) => 
-      prevState.map((message) =>
-      message._id === messageUpdate._id ? {...message, content: messageUpdate.content} : message
-      )
-      )
-    })
+    socket.on("updateMessage", (messageUpdate) => {
+      console.log(messageUpdate, 'message update')
+      setDataStream((prevState) =>
+        prevState.map((message) =>
+          message._id === messageUpdate._id
+            ? { ...message, content: messageUpdate.content }
+            : message
+        )
+      );
+    });
     //
 
     //<--Delete message stream-->
-    socket.on("deletedMessage", (messageID) =>{
-      setDataStream((prevState)=> prevState.filter((state)=>
-      state._id !== messageID))
-    })
+    socket.on("deletedMessage", (messageID) => {
+      setDataStream((prevState) =>
+        prevState.filter((state) => state._id !== messageID)
+      );
+    });
     //
 
     return () => {
@@ -81,6 +85,8 @@ const GroupChat = () => {
       socket.off("alertToSelf");
       socket.off("roomAlert");
       socket.off("newMessage");
+      socket.off("updateMessage");
+      socket.off("deleteMessage");
     };
   }, [userID, username]);
 
@@ -115,8 +121,8 @@ const GroupChat = () => {
   };
 
   const handleMessageDelete = (item) => {
-    const deleteID = item._id
-    socket.emit("deleteMessage",{roomName, deleteID});
+    const deleteID = item._id;
+    socket.emit("deleteMessage", { roomName, deleteID });
   };
 
   const cancelUpdateMessage = () => {
@@ -124,11 +130,11 @@ const GroupChat = () => {
   };
 
   const continueUpdateMessage = (item) => {
-    const messageData = {  messageID: item._id  , message: messageUpdate }
+    const messageData = { messageID: item._id, message: messageUpdate };
     cancelUpdateMessage();
     socket.emit("updatedMessage", {
       roomName,
-      messageData
+      messageData,
     });
   };
   return (
@@ -145,7 +151,7 @@ const GroupChat = () => {
             : `${onlineUsersCount} members online`}
         </div>
       </div>
-
+  
       {/* Online Members */}
       <div className="flex overflow-x-auto p-4 bg-gray-800 space-x-4">
         {Object.entries(users).map(([id, username]) => (
@@ -163,13 +169,11 @@ const GroupChat = () => {
           </div>
         ))}
       </div>
-
+  
       {/* Chat Stream */}
       <ul className="flex-1 overflow-y-auto p-4 space-y-4">
         {dataStream.map((item, index) => (
           <li key={index} className="mb-4">
-            {console.log(dataStream, "data stream")}
-            {console.log(item, "item")}
             {item.type === "alert" ? (
               <div className="text-blue-400 text-center italic text-sm">
                 {item.content}
@@ -186,13 +190,13 @@ const GroupChat = () => {
                   {item.senderID === userID ? "You" : item.sender}
                 </div>
                 <div
-                  className={`max-w-xs sm:max-w-md p-3 rounded-lg ${
+                  className={`max-w-xs sm:max-w-md p-3 rounded-lg relative ${
                     item.senderID === userID
                       ? "bg-blue-600 text-white ml-auto"
                       : "bg-gray-700 text-gray-300"
                   }`}
                 >
-                  <ul className="float-end">
+                  <ul className="absolute top-2 right-2">
                     <li>
                       <SharedDropDown
                         label={<TfiMoreAlt />}
@@ -205,7 +209,12 @@ const GroupChat = () => {
                       />
                     </li>
                   </ul>
-                  {item.content}
+                  <p className="break-words">{item.content}</p>
+                  <div className="text-xs text-gray-400 italic mt-2">
+                    <span>{moment(item.createdAt).format("hh:mm A, MMM DD")}</span>{" "}
+                    {item.edited && <span className="text-yellow-300">edited</span>}{" "}
+                    <span className="text-green-300 font-semibold">sent</span>
+                  </div>
                   <SharedDialog
                     open={openDialog}
                     title={"Edit Message"}
@@ -220,7 +229,7 @@ const GroupChat = () => {
           </li>
         ))}
       </ul>
-
+  
       {/* Message Input */}
       <div className="p-4 bg-gray-800 flex items-center space-x-2">
         <SharedInput

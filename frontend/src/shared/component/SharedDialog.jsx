@@ -22,7 +22,7 @@ const SharedDialog = ({ open, title, handleClose, sendUpdate, value, editMessage
         </AlertDialogHeader>
         <AlertDialogFooter>
             <SharedButton label={"Cancel"} handleClick={handleClose} />
-            <SharedButton label={"Continue"} handleClick={sendUpdate}/>
+            <SharedButton label={"Edit"} handleClick={sendUpdate}/>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
