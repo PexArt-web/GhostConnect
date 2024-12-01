@@ -18,7 +18,7 @@ const GroupChat = () => {
   const [dataStream, setDataStream] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
-  const [ messageUpdate , setMessageUpdate ] = useState('')
+  const [messageUpdate, setMessageUpdate] = useState("");
   const user = JSON.parse(localStorage.getItem("user"));
   const { username } = user;
   const roomName = "GhostConnect";
@@ -56,6 +56,24 @@ const GroupChat = () => {
       setDataStream((prev) => [...prev, { type: "message", ...messageData }]);
     });
 
+
+    //<--update message stream-->
+    socket.on("updateMessage", (messageUpdate) =>{
+      setDataStream((prevState) => 
+      prevState.map((message) =>
+      message._id === messageUpdate._id ? {...message, content: messageUpdate.content} : message
+      )
+      )
+    })
+    //
+
+    //<--Delete message stream-->
+    socket.on("deletedMessage", (messageID) =>{
+      setDataStream((prevState)=> prevState.filter((state)=>
+      state._id !== messageID))
+    })
+    //
+
     return () => {
       socket.off("connect");
       socket.off("disconnect");
@@ -85,29 +103,33 @@ const GroupChat = () => {
     if (e.key === "Enter") handleSendMessage();
   };
 
-  const handleMessageUpdate = (item) => {
-    if(!item.content) return;
+  const openMessageUpdate = (item) => {
+    if (!item.type === "message") return;
     setOpenDialog((prevState) => !prevState);
     setMessageUpdate(item.content);
-    console.log(item, "update message");
+    console.log(item._id, "update message");
   };
-  
+
   const editMessageUpdate = (e) => {
     setMessageUpdate(e.target.value);
-    
-  }
+  };
 
   const handleMessageDelete = (item) => {
-    console.log(item, "delete message");
+    const deleteID = item._id
+    socket.emit("deleteMessage",{roomName, deleteID});
   };
 
   const cancelUpdateMessage = () => {
     setOpenDialog((prevState) => !prevState);
   };
 
-  const continueUpdateMessage = () => {
-    alert("sent");
+  const continueUpdateMessage = (item) => {
+    const messageData = {  messageID: item._id  , message: messageUpdate }
     cancelUpdateMessage();
+    socket.emit("updatedMessage", {
+      roomName,
+      messageData
+    });
   };
   return (
     <div className="flex flex-col h-screen bg-gray-900 text-white">
@@ -178,7 +200,7 @@ const GroupChat = () => {
                         loadIcon1={<MdEdit />}
                         loadIcon2={<FaTrash />}
                         loadLabel2={"Delete"}
-                        handleUpdate={() => handleMessageUpdate(item)}
+                        handleUpdate={() => openMessageUpdate(item)}
                         handleDelete={() => handleMessageDelete(item)}
                       />
                     </li>
@@ -188,7 +210,7 @@ const GroupChat = () => {
                     open={openDialog}
                     title={"Edit Message"}
                     handleClose={cancelUpdateMessage}
-                    sendUpdate={continueUpdateMessage}
+                    sendUpdate={() => continueUpdateMessage(item)}
                     value={messageUpdate}
                     editMessage={editMessageUpdate}
                   />

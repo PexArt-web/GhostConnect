@@ -1,3 +1,4 @@
+const { default: mongoose } = require("mongoose");
 const Message = require("../Models/Blueprint/messageModel");
 
 const { log } = console;
@@ -73,14 +74,48 @@ function connectSocket(socket, io) {
       senderID,
     });
     const saveMessageDataToDatabase = await message.save();
-    if(!saveMessageDataToDatabase) {
+    if (!saveMessageDataToDatabase) {
       log("Failed to save message to the database", "roomMessage");
       return;
     }
-    log(message._id, "Message", message.id , "mess");
+    log(message._id, "Message", message.id, "mess");
     io.in(roomName).emit("newMessage", saveMessageDataToDatabase);
     log(messageData, "receiveMessage");
   });
+  //
+  // <--Update message-->
+  socket.on("updatedMessage", async ({ roomName, messageData }) => {
+    const { messageID, message } = messageData;
+    if (!mongoose.Types.ObjectId.isValid(messageID)) return;
+    const updateMessage = await Message.findByIdAndUpdate(
+      messageID,
+      {
+        $set: { content: message, edited: true },
+      },
+      { new: true }
+    );
+    if (!updateMessage) {
+      log("Failed to update message in the database", "updateMessage");
+      return;
+    }
+
+    log(updateMessage, "message edited");
+    io.in(roomName).emit("updateMessage", updateMessage);
+  });
+
+  // <--Delete message-->
+  socket.on("deleteMessage", async ({ roomName, deleteID }) => {
+    if (!mongoose.Types.ObjectId.isValid(deleteID)) return;
+    const deleteMessage = await Message.findByIdAndDelete(deleteID);
+    if (!deleteMessage) {
+      log("Failed to delete message from the database", "deleteMessage");
+      return;
+    }
+    if(deleteMessage){
+      log("message deleted", deleteID , "deleteMessage", deleteMessage);
+    }
+    io.in(roomName).emit("deletedMessage",deleteID)
+  })
   //
 
   //<--leave Ghost Connect Chat -->

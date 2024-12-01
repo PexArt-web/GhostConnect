@@ -24,6 +24,10 @@ const messageSchema = new Schema(
     sentAt: {
       type: Date,
       default: Date.now,
+    },
+    edited:{
+      type: Boolean,
+      default: false,
     }
   },
   {
