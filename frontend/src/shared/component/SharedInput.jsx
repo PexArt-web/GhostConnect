@@ -10,7 +10,9 @@ const SharedInput = ({
   required,
   onChange,
   onKeyDown,
-  value
+  value,
+  onFocus,
+  onBlur
   
 }) => {
   return (
@@ -25,6 +27,8 @@ const SharedInput = ({
       required={required}
       onChange={onChange}
       onKeyDown={onKeyDown}
+      onFocus={onFocus}
+      onBlur={onBlur}
     />
   );
 };

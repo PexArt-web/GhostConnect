@@ -1,4 +1,4 @@
-const { default: mongoose } = require("mongoose");
+const  mongoose  = require("mongoose");
 const Message = require("../Models/Blueprint/messageModel");
 
 const { log } = console;
@@ -115,6 +115,12 @@ function connectSocket(socket, io) {
       log("message deleted", deleteID , "deleteMessage", deleteMessage);
     }
     io.in(roomName).emit("deletedMessage",deleteID)
+  })
+  //
+
+  //<--Input Focus-->
+  socket.on("isTyping", ({roomName, data})=>{
+    io.in(roomName).emit("isTyping", data)
   })
   //
 
