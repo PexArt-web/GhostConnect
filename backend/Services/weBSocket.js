@@ -117,12 +117,16 @@ function connectSocket(socket, io) {
     io.in(roomName).emit("deletedMessage",deleteID)
   })
   //
+ 
 
-  //<--Input Focus-->
-  socket.on("isTyping", ({roomName, data})=>{
-    io.in(roomName).emit("isTyping", data)
-  })
-  //
+    socket.on("testing", (data)=>{
+      log(data, "testing data")
+      // socket.broadcast.emit("test", data)
+    })
+
+    socket.on("blur", (data)=>{
+      log(data, "blur data")
+    })
 
   //<--leave Ghost Connect Chat -->
   socket.on("leaveRoom", (roomName) => {

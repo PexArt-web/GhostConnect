@@ -20,12 +20,14 @@ const GroupChat = () => {
   const [newMessage, setNewMessage] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
   const [messageUpdate, setMessageUpdate] = useState("");
-  const [isTyping, setIsTyping] = useState(false);
-  const [typingUser, setTypingUser] = useState("");
+
+
+
+  
   const user = JSON.parse(localStorage.getItem("user"));
   const { username } = user;
+  // const isTypingMessage = `${username} is typing ...`;
   const roomName = "GhostConnect";
-  const isTypingMessage = `${username} is typing ...`;
 
   let userID = localStorage.getItem("userID");
   if (!userID) {
@@ -56,13 +58,11 @@ const GroupChat = () => {
     });
 
     socket.on("newMessage", (messageData) => {
-      console.log(messageData, "data and message");
       setDataStream((prev) => [...prev, { type: "message", ...messageData }]);
     });
 
     //<--update message stream-->
     socket.on("updateMessage", (messageUpdate) => {
-      console.log(messageUpdate, "message update");
       setDataStream((prevState) =>
         prevState.map((message) =>
           message._id === messageUpdate._id
@@ -81,10 +81,9 @@ const GroupChat = () => {
     });
     //
 
-    //<--Input Focus-->
-    socket.on("isTyping", (data) => {
-      setTypingUser(data);
-    });
+   
+
+   
 
     return () => {
       socket.off("connect");
@@ -95,13 +94,11 @@ const GroupChat = () => {
       socket.off("newMessage");
       socket.off("updateMessage");
       socket.off("deleteMessage");
-      socket.off("isTyping");
     };
   }, [userID, username]);
 
   const handleSendMessage = () => {
     if (!newMessage.trim()) return;
-    setIsTyping(false);
     const messageData = {
       sender: username,
       content: newMessage,
@@ -112,22 +109,22 @@ const GroupChat = () => {
   };
 
   const handleFocus = () => {
-    setIsTyping(true);
-    socket.emit("isTyping", { roomName, isTypingMessage });
-  };
-
-  const handleBlur = () => {
-    setIsTyping(false);
+      socket.emit("testing", `${username} is typing`)
+ 
   };
 
   const handleChange = (e) => {
-    setIsTyping(true);
-    socket.emit("isTyping", { roomName, isTypingMessage });
+   
     setNewMessage(e.target.value);
   };
-
+  
+  const handleBlur = () => {
+   
+      socket.emit("blur", `${username} has stopped typing`);
+   
+  };
+  
   const handleKeyDown = (e) => {
-    setIsTyping(true);
     if (e.key === "Enter") handleSendMessage();
   };
 
@@ -191,6 +188,13 @@ const GroupChat = () => {
           </div>
         ))}
       </div>
+      {/* test socket */}
+       {/* <div className="bg-black flex flex-col gap-2 items-center justify-center h-32">
+        <p>{isTyping}</p>
+        <button onClick={() => ''} className="bg-gray-700 p-4 rounded-md">
+         Emit Test
+        </button>
+      </div>  */}
 
       {/* Chat Stream */}
       <ul className="flex-1 overflow-y-auto p-4 space-y-4">
@@ -255,7 +259,9 @@ const GroupChat = () => {
           </li>
         ))}
       </ul>
-      {isTyping && <p> {typingUser}</p>}
+     
+      {/* Input Field */}
+  
       <div className="p-4 bg-gray-800 flex items-center space-x-2">
         <SharedInput
           type="text"
