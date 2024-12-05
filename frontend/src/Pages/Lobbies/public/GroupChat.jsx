@@ -21,9 +21,6 @@ const GroupChat = () => {
   const [openDialog, setOpenDialog] = useState(false);
   const [messageUpdate, setMessageUpdate] = useState("");
 
-
-
-  
   const user = JSON.parse(localStorage.getItem("user"));
   const { username } = user;
   // const isTypingMessage = `${username} is typing ...`;
@@ -81,10 +78,6 @@ const GroupChat = () => {
     });
     //
 
-   
-
-   
-
     return () => {
       socket.off("connect");
       socket.off("disconnect");
@@ -109,21 +102,17 @@ const GroupChat = () => {
   };
 
   const handleFocus = () => {
-      socket.emit("testing", `${username} is typing`)
- 
+    socket.emit("testing", `${username} is typing`);
   };
 
   const handleChange = (e) => {
-   
     setNewMessage(e.target.value);
   };
-  
+
   const handleBlur = () => {
-   
-      socket.emit("blur", `${username} has stopped typing`);
-   
+    socket.emit("blur", `${username} has stopped typing`);
   };
-  
+
   const handleKeyDown = (e) => {
     if (e.key === "Enter") handleSendMessage();
   };
@@ -189,7 +178,7 @@ const GroupChat = () => {
         ))}
       </div>
       {/* test socket */}
-       {/* <div className="bg-black flex flex-col gap-2 items-center justify-center h-32">
+      {/* <div className="bg-black flex flex-col gap-2 items-center justify-center h-32">
         <p>{isTyping}</p>
         <button onClick={() => ''} className="bg-gray-700 p-4 rounded-md">
          Emit Test
@@ -259,9 +248,9 @@ const GroupChat = () => {
           </li>
         ))}
       </ul>
-     
+
       {/* Input Field */}
-  
+
       <div className="p-4 bg-gray-800 flex items-center space-x-2">
         <SharedInput
           type="text"

@@ -1,4 +1,4 @@
-const  mongoose  = require("mongoose");
+const mongoose = require("mongoose");
 const Message = require("../Models/Blueprint/messageModel");
 
 const { log } = console;
@@ -111,22 +111,21 @@ function connectSocket(socket, io) {
       log("Failed to delete message from the database", "deleteMessage");
       return;
     }
-    if(deleteMessage){
-      log("message deleted", deleteID , "deleteMessage", deleteMessage);
+    if (deleteMessage) {
+      log("message deleted", deleteID, "deleteMessage", deleteMessage);
     }
-    io.in(roomName).emit("deletedMessage",deleteID)
-  })
+    io.in(roomName).emit("deletedMessage", deleteID);
+  });
   //
- 
 
-    socket.on("testing", (data)=>{
-      log(data, "testing data")
-      // socket.broadcast.emit("test", data)
-    })
+  socket.on("testing", (data) => {
+    log(data, "testing data");
+    // socket.broadcast.emit("test", data)
+  });
 
-    socket.on("blur", (data)=>{
-      log(data, "blur data")
-    })
+  socket.on("blur", (data) => {
+    log(data, "blur data");
+  });
 
   //<--leave Ghost Connect Chat -->
   socket.on("leaveRoom", (roomName) => {
