@@ -55,6 +55,7 @@ const GroupChat = () => {
     });
 
     socket.on("newMessage", (messageData) => {
+     
       setDataStream((prev) => [...prev, { type: "message", ...messageData }]);
     });
 
@@ -79,15 +80,13 @@ const GroupChat = () => {
     //
 
     socket.on("focus", (data) => {
-      console.log(data, "focus");
       setTypingUser(data);
-      console.log(typingUser, "user");
     });
 
     socket.on("blur", (data) => {
-      console.log(data, "blur");
-      setTypingUser(null);
-      console.log(typingUser, "user");
+      if (data) {
+        setTypingUser(null);
+      }
     });
 
     return () => {
@@ -105,6 +104,7 @@ const GroupChat = () => {
   }, [userID, username, typingUser]);
 
   const handleSendMessage = () => {
+    setTypingUser(null);
     if (!newMessage.trim()) return;
     const messageData = {
       sender: username,
@@ -253,7 +253,9 @@ const GroupChat = () => {
                     {item.edited && (
                       <span className="text-yellow-300">edited</span>
                     )}
-                    <span className="text-green-300 font-semibold">sent</span>
+                    <span className="text-green-300 font-semibold float-end">
+                      sent
+                    </span>
                   </div>
                   <SharedDialog
                     open={openDialog}

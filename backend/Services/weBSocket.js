@@ -67,7 +67,7 @@ function connectSocket(socket, io) {
   //<--send & receive messages -->
   //receiveMessage
   socket.on("roomMessage", async ({ roomName, messageData }) => {
-    const { sender, content, senderID, dateTime } = messageData;
+    const { sender, content, senderID } = messageData;
     const message = new Message({
       sender,
       content,
@@ -75,12 +75,9 @@ function connectSocket(socket, io) {
     });
     const saveMessageDataToDatabase = await message.save();
     if (!saveMessageDataToDatabase) {
-      log("Failed to save message to the database", "roomMessage");
       return;
     }
-    log(message._id, "Message", message.id, "mess");
     io.in(roomName).emit("newMessage", saveMessageDataToDatabase);
-    log(messageData, "receiveMessage");
   });
   //
   // <--Update message-->
@@ -95,11 +92,8 @@ function connectSocket(socket, io) {
       { new: true }
     );
     if (!updateMessage) {
-      log("Failed to update message in the database", "updateMessage");
       return;
     }
-
-    log(updateMessage, "message edited");
     io.in(roomName).emit("updateMessage", updateMessage);
   });
 
@@ -108,26 +102,18 @@ function connectSocket(socket, io) {
     if (!mongoose.Types.ObjectId.isValid(deleteID)) return;
     const deleteMessage = await Message.findByIdAndDelete(deleteID);
     if (!deleteMessage) {
-      log("Failed to delete message from the database", "deleteMessage");
       return;
-    }
-    if (deleteMessage) {
-      log("message deleted", deleteID, "deleteMessage", deleteMessage);
     }
     io.in(roomName).emit("deletedMessage", deleteID);
   });
   //
 
   socket.on("focus", (data) => {
-    log(data, "testing data");
-    // socket.emit("focus", data);
-    // io.in(data.roomName).emit("focus", data.message)
-    socket.broadcast.emit("focus", data.message)
+    socket.broadcast.emit("focus", data.message);
   });
 
   socket.on("blur", (data) => {
-    log(data, "blur data");
-    io.to(data.roomName).emit("blur", data.message)
+    io.to(data.roomName).emit("blur", data.message);
   });
 
   //<--leave Ghost Connect Chat -->

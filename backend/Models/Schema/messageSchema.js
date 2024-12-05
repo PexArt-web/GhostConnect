@@ -16,11 +16,11 @@ const messageSchema = new Schema(
       required: true,
       trim: true,
     },
-    status: {
-      type: String,
-      enum: ["sent", "delivered", "read"],
-      default: "sent",
-    },
+    // status: {
+    //   type: String,
+    //   enum: ["sent", "delivered", "read"],
+    //   default: "sent",
+    // },
     sentAt: {
       type: Date,
       default: Date.now,
