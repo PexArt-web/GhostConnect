@@ -118,13 +118,16 @@ function connectSocket(socket, io) {
   });
   //
 
-  socket.on("testing", (data) => {
+  socket.on("focus", (data) => {
     log(data, "testing data");
-    // socket.broadcast.emit("test", data)
+    // socket.emit("focus", data);
+    // io.in(data.roomName).emit("focus", data.message)
+    socket.broadcast.emit("focus", data.message)
   });
 
   socket.on("blur", (data) => {
     log(data, "blur data");
+    io.to(data.roomName).emit("blur", data.message)
   });
 
   //<--leave Ghost Connect Chat -->

@@ -19,11 +19,11 @@ const GroupChat = () => {
   const [dataStream, setDataStream] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
+  const [typingUser, setTypingUser] = useState(null);
   const [messageUpdate, setMessageUpdate] = useState("");
-
   const user = JSON.parse(localStorage.getItem("user"));
   const { username } = user;
-  // const isTypingMessage = `${username} is typing ...`;
+  const isTypingMessage = `${username} is typing `;
   const roomName = "GhostConnect";
 
   let userID = localStorage.getItem("userID");
@@ -78,6 +78,18 @@ const GroupChat = () => {
     });
     //
 
+    socket.on("focus", (data) => {
+      console.log(data, "focus");
+      setTypingUser(data);
+      console.log(typingUser, "user");
+    });
+
+    socket.on("blur", (data) => {
+      console.log(data, "blur");
+      setTypingUser(null);
+      console.log(typingUser, "user");
+    });
+
     return () => {
       socket.off("connect");
       socket.off("disconnect");
@@ -87,8 +99,10 @@ const GroupChat = () => {
       socket.off("newMessage");
       socket.off("updateMessage");
       socket.off("deleteMessage");
+      socket.off("focus");
+      socket.off("blur");
     };
-  }, [userID, username]);
+  }, [userID, username, typingUser]);
 
   const handleSendMessage = () => {
     if (!newMessage.trim()) return;
@@ -102,15 +116,29 @@ const GroupChat = () => {
   };
 
   const handleFocus = () => {
-    socket.emit("testing", `${username} is typing`);
+    const data = {
+      roomName: roomName,
+      message: isTypingMessage,
+    };
+    socket.emit("focus", data);
   };
 
   const handleChange = (e) => {
+    const data = {
+      roomName: roomName,
+      message: isTypingMessage,
+    };
+    socket.emit("focus", data);
     setNewMessage(e.target.value);
   };
 
   const handleBlur = () => {
-    socket.emit("blur", `${username} has stopped typing`);
+    const data = {
+      roomName: roomName,
+      message: isTypingMessage,
+    };
+    setTypingUser(null);
+    socket.emit("blur", data);
   };
 
   const handleKeyDown = (e) => {
@@ -177,13 +205,6 @@ const GroupChat = () => {
           </div>
         ))}
       </div>
-      {/* test socket */}
-      {/* <div className="bg-black flex flex-col gap-2 items-center justify-center h-32">
-        <p>{isTyping}</p>
-        <button onClick={() => ''} className="bg-gray-700 p-4 rounded-md">
-         Emit Test
-        </button>
-      </div>  */}
 
       {/* Chat Stream */}
       <ul className="flex-1 overflow-y-auto p-4 space-y-4">
@@ -250,6 +271,26 @@ const GroupChat = () => {
       </ul>
 
       {/* Input Field */}
+      {typingUser && (
+        <p className="justify-center  flex items-center space-x-2 text-gray-600 text-md mt-2 animate-pulse italic">
+          <span className="font-medium">{typingUser}</span>
+
+          <span className="flex space-x-1">
+            <span
+              className="w-1.5 h-1.5 bg-gray-500 rounded-full animate-bounce"
+              style={{ animationDelay: "0s" }}
+            ></span>
+            <span
+              className="w-1.5 h-1.5 bg-gray-500 rounded-full animate-bounce"
+              style={{ animationDelay: "0.2s" }}
+            ></span>
+            <span
+              className="w-1.5 h-1.5 bg-gray-500 rounded-full animate-bounce"
+              style={{ animationDelay: "0.4s" }}
+            ></span>
+          </span>
+        </p>
+      )}
 
       <div className="p-4 bg-gray-800 flex items-center space-x-2">
         <SharedInput
