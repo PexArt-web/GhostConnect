@@ -15,5 +15,3 @@ export const loginService = async (username, email, password) => {
     throw Error(error);
   }
 };
-
-
