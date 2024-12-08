@@ -101,6 +101,7 @@ function connectSocket(socket, io) {
   socket.on("deleteMessage", async ({ roomName, deleteID }) => {
     if (!mongoose.Types.ObjectId.isValid(deleteID)) return;
     const deleteMessage = await Message.findByIdAndDelete(deleteID);
+    // const deleteMessage = await Message.deleteMany({})
     if (!deleteMessage) {
       return;
     }

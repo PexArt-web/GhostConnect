@@ -14,7 +14,8 @@ import LobbyLayout from "./layouts/LobbyLayout";
 import Signup from "./pages/Auth/Signup";
 import Login from "./pages/Auth/Login";
 import { loginAction } from "./handlers/Auth/loginAction";
-import { signupAction } from "./handlers/Auth/signupAction"
+import { signupAction } from "./handlers/Auth/signupAction";
+import { messageLoader } from "./loaders/messageLoader";
 function App() {
   const router = createBrowserRouter(
     createRoutesFromElements(
@@ -26,7 +27,11 @@ function App() {
           <Route path="private-chat-lobby" element={<ChatLobby />} />
           <Route path="private-chat" element={<MainChat />} />
           <Route path="group-chat-lobby" element={<GroupLobby />} />
-          <Route path="group-chat" element={<GroupChat />} />
+          <Route
+            path="group-chat"
+            loader={messageLoader}
+            element={<GroupChat />}
+          />
         </Route>
         <Route path="*" element={<AllRoutesError />} />
       </Route>

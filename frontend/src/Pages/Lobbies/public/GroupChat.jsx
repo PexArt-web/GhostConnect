@@ -4,16 +4,19 @@ import { clientSocket, socket } from "@/services/weBSocket";
 import SharedButton from "@/shared/component/SharedButton";
 import SharedDropDown from "@/shared/component/SharedDropDown";
 import SharedInput from "@/shared/component/SharedInput";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { FiSend, FiUsers } from "react-icons/fi";
 import { TfiMoreAlt } from "react-icons/tfi";
 import { MdEdit } from "react-icons/md";
 import { FaTrash } from "react-icons/fa";
 import SharedDialog from "@/shared/component/SharedDialog";
 import moment from "moment";
+import { Await, useLoaderData } from "react-router-dom";
+import SuspenseFallback from "@/shared/component/SuspenseFallback";
 
 const GroupChat = () => {
   requireAuth();
+  const loaderElement = useLoaderData();
   const [onlineUsersCount, setOnlineUsersCount] = useState(0);
   const [users, setUsers] = useState({});
   const [dataStream, setDataStream] = useState([]);
@@ -55,7 +58,6 @@ const GroupChat = () => {
     });
 
     socket.on("newMessage", (messageData) => {
-     
       setDataStream((prev) => [...prev, { type: "message", ...messageData }]);
     });
 
@@ -207,70 +209,83 @@ const GroupChat = () => {
       </div>
 
       {/* Chat Stream */}
-      <ul className="flex-1 overflow-y-auto p-4 space-y-4">
-        {dataStream.map((item, index) => (
-          <li key={index} className="mb-4">
-            {item.type === "alert" ? (
-              <div className="text-blue-400 text-center italic text-sm">
-                {item.content}
-              </div>
-            ) : (
-              <div>
-                <div
-                  className={`${
-                    item.senderID === userID
-                      ? "text-blue-400 ml-auto"
-                      : "text-green-400"
-                  } font-semibold text-sm sm:text-base`}
-                >
-                  {item.senderID === userID ? "You" : item.sender}
-                </div>
-                <div
-                  className={`max-w-xs sm:max-w-md p-3 rounded-lg relative ${
-                    item.senderID === userID
-                      ? "bg-blue-600 text-white ml-auto"
-                      : "bg-gray-700 text-gray-300"
-                  }`}
-                >
-                  <ul className="absolute top-2 right-2">
-                    <li>
-                      <SharedDropDown
-                        label={<TfiMoreAlt />}
-                        loadLabel1={"Update"}
-                        loadIcon1={<MdEdit />}
-                        loadIcon2={<FaTrash />}
-                        loadLabel2={"Delete"}
-                        handleUpdate={() => openMessageUpdate(item)}
-                        handleDelete={() => handleMessageDelete(item)}
-                      />
-                    </li>
-                  </ul>
-                  <p className="break-words">{item.content}</p>
-                  <div className="text-xs text-gray-400 italic mt-2">
-                    <span>
-                      {moment(item.createdAt).format("hh:mm A, MMM DD")}
-                    </span>
-                    {item.edited && (
-                      <span className="text-yellow-300">edited</span>
+      <Suspense fallback={<SuspenseFallback />}>
+        <Await resolve={loaderElement.getMessage}>
+          {(loadedMessage) => {
+            const messages = [...loadedMessage, ...dataStream];
+            return (
+              <ul className="flex-1 overflow-y-auto p-4 space-y-4">
+                {messages.map((item, index) => (
+                  <li key={index} className="mb-4">
+                    {item.type === "alert" ? (
+                      <div className="text-blue-400 text-center italic text-sm">
+                        {item.content}
+                      </div>
+                    ) : (
+                      <div>
+                        <div
+                          className={`${
+                            item.senderID === userID
+                              ? "text-blue-400 ml-auto"
+                              : "text-green-400"
+                          } font-semibold text-sm sm:text-base`}
+                        >
+                          {item.senderID === userID ? "You" : item.sender}
+                        </div>
+                        <div
+                          className={`max-w-xs sm:max-w-md p-3 rounded-lg relative ${
+                            item.senderID === userID
+                              ? "bg-blue-600 text-white ml-auto"
+                              : "bg-gray-700 text-gray-300"
+                          }`}
+                        >
+                          <ul className="absolute top-2 right-2">
+                            <li>
+                              <SharedDropDown
+                                label={<TfiMoreAlt />}
+                                loadLabel1={"Update"}
+                                loadIcon1={<MdEdit />}
+                                loadIcon2={<FaTrash />}
+                                loadLabel2={"Delete"}
+                                handleUpdate={() => openMessageUpdate(item)}
+                                handleDelete={() => handleMessageDelete(item)}
+                              />
+                            </li>
+                          </ul>
+                          <p className="break-words">{item.content}</p>
+                          <div className="text-xs text-gray-400 italic mt-2">
+                            <span className="inline-flex gap-4">
+                              <span>
+                                {moment(item.createdAt).format(
+                                  "hh:mm A, MMM DD"
+                                )}
+                              </span>
+                              {item.edited && (
+                                <span className="text-yellow-300 ">edited</span>
+                              )}
+                            </span>
+                            <span className="text-green-300 font-semibold float-end">
+                              sent
+                            </span>
+                          </div>
+                          <SharedDialog
+                            open={openDialog}
+                            title={"Edit Message"}
+                            handleClose={cancelUpdateMessage}
+                            sendUpdate={() => continueUpdateMessage(item)}
+                            value={messageUpdate}
+                            editMessage={editMessageUpdate}
+                          />
+                        </div>
+                      </div>
                     )}
-                    <span className="text-green-300 font-semibold float-end">
-                      sent
-                    </span>
-                  </div>
-                  <SharedDialog
-                    open={openDialog}
-                    title={"Edit Message"}
-                    handleClose={cancelUpdateMessage}
-                    sendUpdate={() => continueUpdateMessage(item)}
-                    value={messageUpdate}
-                    editMessage={editMessageUpdate}
-                  />
-                </div>
-              </div>
-            )}
-          </li>
-        ))}
-      </ul>
+                  </li>
+                ))}
+              </ul>
+            );
+          }}
+        </Await>
+      </Suspense>
 
       {/* Input Field */}
       {typingUser && (
