@@ -4,7 +4,7 @@ import { clientSocket, socket } from "@/services/weBSocket";
 import SharedButton from "@/shared/component/SharedButton";
 import SharedDropDown from "@/shared/component/SharedDropDown";
 import SharedInput from "@/shared/component/SharedInput";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { FiSend, FiUsers } from "react-icons/fi";
 import { TfiMoreAlt } from "react-icons/tfi";
 import { MdEdit } from "react-icons/md";
@@ -24,20 +24,34 @@ const GroupChat = () => {
   const [openDialog, setOpenDialog] = useState(false);
   const [typingUser, setTypingUser] = useState(null);
   const [messageUpdate, setMessageUpdate] = useState("");
+  const messageContainerRef = useRef(null);
+  const [scroll, setScroll] = useState(false);
   const user = JSON.parse(localStorage.getItem("user"));
   const { username } = user;
   const isTypingMessage = `${username} is typing `;
   const roomName = "GhostConnect";
 
   let userID = localStorage.getItem("userID");
-  const randomNumber = Math.floor(Math.random() * 111)
+  const randomNumber = Math.floor(Math.random() * 111);
   if (!userID) {
     userID = `user-${Date.now()}-${randomNumber}`;
     localStorage.setItem("userID", userID);
   }
 
+  const scrollToBottom = () => {
+    const container = messageContainerRef.current;
+    if (container) {
+      container.scrollTo({ top: container.scrollHeight, behavior: "smooth" });
+    }
+  };
+
+  if (scroll) {
+    scrollToBottom();
+  }
+
   useEffect(() => {
     clientSocket();
+    scrollToBottom();
 
     socket.on("connect", () => {
       const userDetails = { id: userID, username: username };
@@ -104,7 +118,7 @@ const GroupChat = () => {
       socket.off("focus");
       socket.off("blur");
     };
-  }, [userID, username, typingUser]);
+  }, [userID, username, typingUser, dataStream]);
 
   const handleSendMessage = () => {
     setTypingUser(null);
@@ -208,10 +222,13 @@ const GroupChat = () => {
       <Suspense fallback={<SuspenseFallback />}>
         <Await resolve={loaderElement.getMessage}>
           {(loadedMessage) => {
+            loadedMessage ? setScroll(true) : scroll;
             const messages = [...loadedMessage, ...dataStream];
-            console.log(messages , "loaded message combined");
             return (
-              <ul className="flex-1 overflow-y-auto p-4 space-y-4">
+              <ul
+                className="flex-1 overflow-y-auto p-4 space-y-4"
+                ref={messageContainerRef}
+              >
                 {messages.map((item, index) => (
                   <li key={index} className="mb-4">
                     {item.type === "alert" ? (
@@ -236,19 +253,21 @@ const GroupChat = () => {
                               : "bg-gray-700 text-gray-300"
                           }`}
                         >
-                          <ul className="absolute top-2 right-2">
-                            <li>
-                              <SharedDropDown
-                                label={<TfiMoreAlt />}
-                                loadLabel1={"Update"}
-                                loadIcon1={<MdEdit />}
-                                loadIcon2={<FaTrash />}
-                                loadLabel2={"Delete"}
-                                handleUpdate={() => openMessageUpdate(item)}
-                                handleDelete={() => handleMessageDelete(item)}
-                              />
-                            </li>
-                          </ul>
+                          {item.senderID === userID && (
+                            <ul className="absolute top-2 right-2">
+                              <li>
+                                <SharedDropDown
+                                  label={<TfiMoreAlt />}
+                                  loadLabel1={"Update"}
+                                  loadIcon1={<MdEdit />}
+                                  loadIcon2={<FaTrash />}
+                                  loadLabel2={"Delete"}
+                                  handleUpdate={() => openMessageUpdate(item)}
+                                  handleDelete={() => handleMessageDelete(item)}
+                                />
+                              </li>
+                            </ul>
+                          )}
                           <p className="break-words">{item.content}</p>
                           <div className="text-xs text-gray-400 italic mt-2">
                             <span className="inline-flex gap-4">
