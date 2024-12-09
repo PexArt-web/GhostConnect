@@ -26,18 +26,19 @@ function joinRoom(socket, roomName) {
   }
 
   const checkUser = confirmUser(socket);
-  if (checkUser) {
-    const username = users[checkUser];
-    socket.join(roomName);
-    socket.emit(
-      "alertToSelf",
-      `You've joined ${roomName}! Let the conversations begin!`
-    );
-
-    socket
-      .to(roomName)
-      .emit("roomAlert", `${username} has just joined ${roomName}! Say hi!`);
+  if (!checkUser) {
+    return;
   }
+  const username = users[checkUser];
+  socket.join(roomName);
+  socket.emit(
+    "alertToSelf",
+    `You've joined ${roomName}! Let the conversations begin!`
+  );
+
+  socket
+    .to(roomName)
+    .emit("roomAlert", `${username} has just joined ${roomName}! Say hi!`);
 }
 //
 // <-- Leave Room -->
@@ -61,6 +62,7 @@ function connectSocket(socket, io) {
 
   //<--Join Ghost Connect Chat -->
   socket.on("joinRoom", (roomName) => {
+    log(roomName, "new", socket.id);
     joinRoom(socket, roomName);
   });
   //
@@ -110,6 +112,7 @@ function connectSocket(socket, io) {
   //
 
   socket.on("focus", (data) => {
+    log(data.message, "istyping message", data);
     socket.broadcast.emit("focus", data.message);
   });
 

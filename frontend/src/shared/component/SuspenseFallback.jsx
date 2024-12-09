@@ -23,7 +23,8 @@ const SuspenseFallback = () => {
               d="M4 12a8 8 0 018-8V0C6.48 0 2 4.48 2 10h2zm2 5.29A7.97 7.97 0 014 12H2c0 2.5 1 4.75 2.69 6.29l1.41-1.41z"
             ></path>
           </svg>
-          <h2 className="text-lg font-medium text-gray-700">Loading Chat...</h2>
+          {/* <h2 className="text-lg font-medium text-gray-700">Loading Chat...</h2> */}
+          <h2 className="text-lg font-medium text-gray-700">Bringing your messages to life...</h2>
         </div>
       </div>
     </>

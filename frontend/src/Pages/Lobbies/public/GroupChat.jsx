@@ -30,8 +30,9 @@ const GroupChat = () => {
   const roomName = "GhostConnect";
 
   let userID = localStorage.getItem("userID");
+  const randomNumber = Math.floor(Math.random() * 111)
   if (!userID) {
-    userID = `user-${Date.now()}`;
+    userID = `user-${Date.now()}-${randomNumber}`;
     localStorage.setItem("userID", userID);
   }
 
@@ -126,11 +127,6 @@ const GroupChat = () => {
   };
 
   const handleChange = (e) => {
-    const data = {
-      roomName: roomName,
-      message: isTypingMessage,
-    };
-    socket.emit("focus", data);
     setNewMessage(e.target.value);
   };
 
@@ -213,6 +209,7 @@ const GroupChat = () => {
         <Await resolve={loaderElement.getMessage}>
           {(loadedMessage) => {
             const messages = [...loadedMessage, ...dataStream];
+            console.log(messages , "loaded message combined");
             return (
               <ul className="flex-1 overflow-y-auto p-4 space-y-4">
                 {messages.map((item, index) => (
@@ -308,6 +305,8 @@ const GroupChat = () => {
           </span>
         </p>
       )}
+
+      {/*  */}
 
       <div className="p-4 bg-gray-800 flex items-center space-x-2">
         <SharedInput
