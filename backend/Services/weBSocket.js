@@ -58,6 +58,7 @@ function connectSocket(socket, io) {
     users[id] = username;
     //<--Active Users count & User List  -->
     emitActiveUsersDetails(io);
+    log("id  + username", id, username);
   });
 
   //<--Join Ghost Connect Chat -->
@@ -126,8 +127,16 @@ function connectSocket(socket, io) {
   });
   //
 
+
+  // private-chat
+
+  socket.on("privateChat", (chat)=>{
+    log(chat, "privateChat")
+  })
+
   //<--Socket Disconnections-->
   socket.on("disconnect", () => {
+    log("Disconnected")
     const removeUserId = Object.keys(userID).find(
       (index) => userID[index] === socket.id
     );

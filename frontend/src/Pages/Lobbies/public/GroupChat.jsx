@@ -50,14 +50,14 @@ const GroupChat = () => {
   }
 
   useEffect(() => {
-    clientSocket();
+    // clientSocket();
     scrollToBottom();
 
-    socket.on("connect", () => {
-      const userDetails = { id: userID, username: username };
-      socket.emit("userDetails", userDetails);
-      socket.emit("joinRoom", roomName);
-    });
+    // socket.on("connect", () => {
+    //   const userDetails = { id: userID, username: username };
+    //   socket.emit("userDetails", userDetails);
+    // });
+    socket.emit("joinRoom", roomName);
 
     socket.on("userRecords", ({ userCount, userList }) => {
       setOnlineUsersCount(userCount);

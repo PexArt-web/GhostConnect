@@ -3,7 +3,8 @@ import SharedButton from "@/shared/component/SharedButton";
 import { logoutService } from "@/services/Auth/logoutService";
 import { requireAuth } from "@/services/Auth/middleware/requireAuth";
 import { Outlet, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { clientSocket, socket } from "@/services/weBSocket";
 
 const LobbyLayout = () => {
   requireAuth();
@@ -26,6 +27,23 @@ const LobbyLayout = () => {
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
+
+  let userID = localStorage.getItem("userID");
+  const randomNumber = Math.floor(Math.random() * 111);
+  if (!userID) {
+    userID = `user-${Date.now()}-${randomNumber}`;
+    localStorage.setItem("userID", userID);
+  }
+
+  const $user = JSON.parse(localStorage.getItem("user"))
+  const { username } = $user;
+  useEffect(()=>{
+    clientSocket()
+    socket.on("connect", ()=>{
+      const userDetails = {id: userID, username: username}
+      socket.emit("userDetails", userDetails)
+    })
+  },[])
 
   return (
     <div className="flex h-screen">

@@ -1,5 +1,6 @@
 import { requireAuth } from "@/services/Auth/middleware/requireAuth";
-import { useState } from "react";
+import { socket } from "@/services/weBSocket";
+import { useEffect, useState } from "react";
 import { FiPlus } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 
@@ -17,6 +18,9 @@ const ChatLobby = () => {
   const handleClick = () => {
     navigate("/lobby-layout/private-chat")
   };
+  useEffect(()=>{
+    socket.emit("privateChat", "private chat")
+  },[])
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-800 text-white px-6">
       <h1 className="text-3xl font-semibold mb-4">Start a Private Chat</h1>
