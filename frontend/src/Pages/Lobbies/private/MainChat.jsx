@@ -11,13 +11,13 @@ const MainGroupChat = () => {
   };
 
   const [messages, setMessages] = useState([
-    // Example initial messages
+ 
     { sender: "user", content: "Hey, how's it going?" },
     { sender: "selectedUser", content: "I'm good, thanks! How about you?" },
   ]);
   const [newMessage, setNewMessage] = useState("");
 
-  // Handle sending a message
+
   const handleSendMessage = () => {
     if (newMessage.trim()) {
       setMessages([...messages, { sender: "user", content: newMessage }]);

@@ -81,7 +81,11 @@ const GroupChat = () => {
       setDataStream((prevState) =>
         prevState.map((message) =>
           message._id === messageUpdate._id
-            ? { ...message, content: messageUpdate.content }
+            ? {
+                ...message,
+                content: messageUpdate.content,
+                edited: messageUpdate.edited,
+              }
             : message
         )
       );
@@ -118,7 +122,7 @@ const GroupChat = () => {
       socket.off("focus");
       socket.off("blur");
     };
-  }, [userID, username, typingUser, dataStream]);
+  }, [userID, username, typingUser, setDataStream]);
 
   const handleSendMessage = () => {
     setTypingUser(null);

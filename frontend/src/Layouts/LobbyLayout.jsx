@@ -20,7 +20,6 @@ const LobbyLayout = () => {
 
   const handleLogout = async () => {
     dispatch({ type: "LOGOUT" });
-    console.log("logged out", user);
     await logoutService();
     navigate("/", { replace: true });
   };
@@ -43,7 +42,7 @@ const LobbyLayout = () => {
           handleClick={handlePrivateChat}
           className={"bg-blue-500 hover:bg-blue-600 py-2 px-4 rounded mb-2"}
           label={"Private Chat Lobby"}
-          disabled={true}
+          // disabled={true}
         />
 
         <SharedButton
@@ -85,7 +84,7 @@ const LobbyLayout = () => {
               handleClick={handlePrivateChat}
               className={"bg-blue-500 hover:bg-blue-600 py-2 px-4 rounded mb-2"}
               label={"Private Chat Lobby"}
-              disabled={true}
+              // disabled={true}
             />
 
             <SharedButton

@@ -86,17 +86,18 @@ function connectSocket(socket, io) {
   socket.on("updatedMessage", async ({ roomName, messageData }) => {
     const { messageID, message } = messageData;
     if (!mongoose.Types.ObjectId.isValid(messageID)) return;
-    const updateMessage = await Message.findByIdAndUpdate(
+    const updatedMessage = await Message.findByIdAndUpdate(
       messageID,
       {
         $set: { content: message, edited: true },
       },
       { new: true }
     );
-    if (!updateMessage) {
+    if (!updatedMessage) {
       return;
     }
-    io.in(roomName).emit("updateMessage", updateMessage);
+    log("update", updatedMessage)
+    io.in(roomName).emit("updateMessage", updatedMessage);
   });
 
   // <--Delete message-->
@@ -112,7 +113,6 @@ function connectSocket(socket, io) {
   //
 
   socket.on("focus", (data) => {
-    log(data.message, "istyping message", data);
     socket.broadcast.emit("focus", data.message);
   });
 
