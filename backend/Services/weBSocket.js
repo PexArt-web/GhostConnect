@@ -10,6 +10,7 @@ function emitActiveUsersDetails(io) {
   //<--Active Users count & User List  -->
   const activeUser = Object.keys(users).length;
   const userRegistry = { userCount: activeUser, userList: users };
+  log(activeUser, 'active')
   io.emit("userRecords", userRegistry);
 }
 

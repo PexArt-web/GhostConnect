@@ -1,4 +1,4 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+// import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { requireAuth } from "@/services/Auth/middleware/requireAuth";
 import { clientSocket, socket } from "@/services/weBSocket";
 import SharedButton from "@/shared/component/SharedButton";
@@ -11,14 +11,15 @@ import { MdEdit } from "react-icons/md";
 import { FaTrash } from "react-icons/fa";
 import SharedDialog from "@/shared/component/SharedDialog";
 import moment from "moment";
-import { Await, useLoaderData } from "react-router-dom";
+import { Await, useLoaderData, useOutletContext } from "react-router-dom";
 import SuspenseFallback from "@/shared/component/SuspenseFallback";
+import SharedAvatar from "@/shared/component/SharedAvatar";
 
 const GroupChat = () => {
   requireAuth();
   const loaderElement = useLoaderData();
-  const [onlineUsersCount, setOnlineUsersCount] = useState(0);
-  const [users, setUsers] = useState({});
+  // const [onlineUsersCount, setOnlineUsersCount] = useState(0);
+  // const [users, setUsers] = useState({});
   const [dataStream, setDataStream] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
@@ -48,9 +49,10 @@ const GroupChat = () => {
   if (scroll) {
     scrollToBottom();
   }
-
+  const { users, onlineUsers } = useOutletContext();
+  // console.log(onlineUsers, "context users")
   useEffect(() => {
-    // clientSocket();
+    clientSocket();
     scrollToBottom();
 
     // socket.on("connect", () => {
@@ -59,10 +61,10 @@ const GroupChat = () => {
     // });
     socket.emit("joinRoom", roomName);
 
-    socket.on("userRecords", ({ userCount, userList }) => {
-      setOnlineUsersCount(userCount);
-      setUsers(userList);
-    });
+    // socket.on("userRecords", ({ userCount, userList }) => {
+    //   setOnlineUsersCount(userCount);
+    //   setUsers(userList);
+    // });
 
     socket.on("alertToSelf", (message) => {
       setDataStream((prev) => [...prev, { type: "alert", content: message }]);
@@ -198,9 +200,9 @@ const GroupChat = () => {
         </h2>
         <div className="flex items-center text-xs sm:text-sm text-gray-400">
           <FiUsers className="mr-2" />
-          {onlineUsersCount === 1
+          {onlineUsers === 1
             ? "Just You Online"
-            : `${onlineUsersCount} members online`}
+            : `${onlineUsers} members online`}
         </div>
       </div>
 
@@ -211,10 +213,8 @@ const GroupChat = () => {
             key={id}
             className="flex flex-col items-center text-center space-y-1"
           >
-            <Avatar>
-              <AvatarImage src="https://github.com/shadcn.png" />
-              <AvatarFallback>CN</AvatarFallback>
-            </Avatar>
+            <SharedAvatar />
+
             <span className="text-xs sm:text-sm text-gray-300">
               {id === userID ? "You" : username}
             </span>
