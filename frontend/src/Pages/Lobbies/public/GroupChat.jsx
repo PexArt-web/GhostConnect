@@ -1,4 +1,3 @@
-// import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { requireAuth } from "@/services/Auth/middleware/requireAuth";
 import { clientSocket, socket } from "@/services/weBSocket";
 import SharedButton from "@/shared/component/SharedButton";
@@ -59,7 +58,7 @@ const GroupChat = () => {
     //   const userDetails = { id: userID, username: username };
     //   socket.emit("userDetails", userDetails);
     // });
-    socket.emit("joinRoom", roomName);
+    socket.emit("joinRoom", {roomName, userID});
 
     // socket.on("userRecords", ({ userCount, userList }) => {
     //   setOnlineUsersCount(userCount);

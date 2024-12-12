@@ -1,9 +1,12 @@
 const mongoose = require("mongoose");
 const Message = require("../Models/Blueprint/messageModel");
+const  {privateChats } = require("./private/privateSocket");
+const roomMessages = require("./public/groupMessage");
 
 const { log } = console;
 let userID = {};
 let users = {};
+let activeGroupUsers = {}
 
 //<-- users Info ()-->
 function emitActiveUsersDetails(io) {
@@ -21,26 +24,26 @@ const confirmUser = (socket) => {
   return checkUserID;
 };
 //<--Join Room -->
-function joinRoom(socket, roomName) {
-  if (!roomName || typeof roomName !== "string") {
-    return;
-  }
+// function joinRoom(socket, roomName) {
+//   if (!roomName || typeof roomName !== "string") {
+//     return;
+//   }
 
-  const checkUser = confirmUser(socket);
-  if (!checkUser) {
-    return;
-  }
-  const username = users[checkUser];
-  socket.join(roomName);
-  socket.emit(
-    "alertToSelf",
-    `You've joined ${roomName}! Let the conversations begin!`
-  );
+//   const checkUser = confirmUser(socket);
+//   if (!checkUser) {
+//     return;
+//   }
+//   const username = users[checkUser];
+//   socket.join(roomName);
+//   socket.emit(
+//     "alertToSelf",
+//     `You've joined ${roomName}! Let the conversations begin!`
+//   );
 
-  socket
-    .to(roomName)
-    .emit("roomAlert", `${username} has just joined ${roomName}! Say hi!`);
-}
+//   socket
+//     .to(roomName)
+//     .emit("roomAlert", `${username} has just joined ${roomName}! Say hi!`);
+// }
 //
 // <-- Leave Room -->
 function leaveRoom(socket, roomName) {
@@ -59,14 +62,10 @@ function connectSocket(socket, io) {
     users[id] = username;
     //<--Active Users count & User List  -->
     emitActiveUsersDetails(io);
-    log("id  + username", id, username);
   });
 
   //<--Join Ghost Connect Chat -->
-  socket.on("joinRoom", (roomName) => {
-    log(roomName, "new", socket.id);
-    joinRoom(socket, roomName);
-  });
+  roomMessages(socket)
   //
   //<--send & receive messages -->
   //receiveMessage
@@ -131,9 +130,7 @@ function connectSocket(socket, io) {
 
   // private-chat
 
-  socket.on("privateChat", (chat)=>{
-    log(chat, "privateChat")
-  })
+    privateChats(socket)
 
   //<--Socket Disconnections-->
   socket.on("disconnect", () => {
@@ -154,4 +151,4 @@ function connectSocket(socket, io) {
   });
 }
 
-module.exports = { connectSocket };
+module.exports = { connectSocket, confirmUser }
