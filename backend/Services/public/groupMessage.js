@@ -1,33 +1,21 @@
-// const { joinRoom } = require("../weBSocket");
+const { log } = console;
 
-const { confirmUser } = require("../weBSocket");
+let groupID = {};
+let groupUsers = {};
 
-const { log } = console
-function joinRoom(socket, roomName) {
-    if (!roomName || typeof roomName !== "string") {
-      return;
-    }
-  
-    const checkUser = confirmUser(socket);
-    if (!checkUser) {
-      return;
-    }
-    const username = users[checkUser];
-    socket.join(roomName);
-    socket.emit(
-      "alertToSelf",
-      `You've joined ${roomName}! Let the conversations begin!`
-    );
-  
-    socket
-      .to(roomName)
-      .emit("roomAlert", `${username} has just joined ${roomName}! Say hi!`);
-  }
- const roomMessages =  (socket) => {
+const groupServices = (socket) =>{
     socket.on("joinRoom", ({roomName, userID}) => {
-        log(roomName, "newIDuser", userID);
-        joinRoom(socket, roomName);
+        // groupServices(socket , roomName)
+        log(roomName, "newIDuser", userID , "boss");
+        // joinRoom(socket, roomName);
       });
-};
+    // socket.on("userDetails", ({id, username})=>{
+    //     groupID[id] = socket.id
+    //     groupUsers[id] = username
+    // })
 
-module.exports = roomMessages;
+    // log(groupID, "id card")
+    // log("roomname:" , roomName)
+}
+
+module.exports = { groupServices }

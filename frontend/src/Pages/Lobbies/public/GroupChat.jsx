@@ -74,6 +74,7 @@ const GroupChat = () => {
     });
 
     socket.on("newMessage", (messageData) => {
+      console.log(messageData, "message from server");
       setDataStream((prev) => [...prev, { type: "message", ...messageData }]);
     });
 

@@ -1,12 +1,11 @@
 const mongoose = require("mongoose");
 const Message = require("../Models/Blueprint/messageModel");
-const  {privateChats } = require("./private/privateSocket");
-const roomMessages = require("./public/groupMessage");
+const { groupServices } = require("./public/groupMessage");
 
 const { log } = console;
 let userID = {};
 let users = {};
-let activeGroupUsers = {}
+// let activeGroupUsers = {}
 
 //<-- users Info ()-->
 function emitActiveUsersDetails(io) {
@@ -24,26 +23,26 @@ const confirmUser = (socket) => {
   return checkUserID;
 };
 //<--Join Room -->
-// function joinRoom(socket, roomName) {
-//   if (!roomName || typeof roomName !== "string") {
-//     return;
-//   }
+function joinRoom(socket, roomName) {
+  if (!roomName || typeof roomName !== "string") {
+    return;
+  }
 
-//   const checkUser = confirmUser(socket);
-//   if (!checkUser) {
-//     return;
-//   }
-//   const username = users[checkUser];
-//   socket.join(roomName);
-//   socket.emit(
-//     "alertToSelf",
-//     `You've joined ${roomName}! Let the conversations begin!`
-//   );
+  const checkUser = confirmUser(socket);
+  if (!checkUser) {
+    return;
+  }
+  const username = users[checkUser];
+  socket.join(roomName);
+  socket.emit(
+    "alertToSelf",
+    `You've joined ${roomName}! Let the conversations begin!`
+  );
 
-//   socket
-//     .to(roomName)
-//     .emit("roomAlert", `${username} has just joined ${roomName}! Say hi!`);
-// }
+  socket
+    .to(roomName)
+    .emit("roomAlert", `${username} has just joined ${roomName}! Say hi!`);
+}
 //
 // <-- Leave Room -->
 function leaveRoom(socket, roomName) {
@@ -65,11 +64,17 @@ function connectSocket(socket, io) {
   });
 
   //<--Join Ghost Connect Chat -->
-  roomMessages(socket)
+  groupServices(socket)
+  // socket.on("joinRoom", ({roomName, userID}) => {
+  //   groupServices(socket , roomName)
+  //   log(roomName, "newIDuser", userID);
+  //   joinRoom(socket, roomName);
+  // });
   //
   //<--send & receive messages -->
   //receiveMessage
   socket.on("roomMessage", async ({ roomName, messageData }) => {
+    log(messageData, "roomMessage")
     const { sender, content, senderID } = messageData;
     const message = new Message({
       sender,
@@ -130,7 +135,9 @@ function connectSocket(socket, io) {
 
   // private-chat
 
-    privateChats(socket)
+  socket.on("privateChat", (chat)=>{
+    log(chat, "privateChat")
+  })
 
   //<--Socket Disconnections-->
   socket.on("disconnect", () => {
@@ -151,4 +158,4 @@ function connectSocket(socket, io) {
   });
 }
 
-module.exports = { connectSocket, confirmUser }
+module.exports = { connectSocket };
