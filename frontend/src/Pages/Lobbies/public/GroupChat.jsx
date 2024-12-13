@@ -10,15 +10,15 @@ import { MdEdit } from "react-icons/md";
 import { FaTrash } from "react-icons/fa";
 import SharedDialog from "@/shared/component/SharedDialog";
 import moment from "moment";
-import { Await, useLoaderData, useOutletContext } from "react-router-dom";
+import { Await, useLoaderData } from "react-router-dom";
 import SuspenseFallback from "@/shared/component/SuspenseFallback";
 import SharedAvatar from "@/shared/component/SharedAvatar";
 
 const GroupChat = () => {
   requireAuth();
   const loaderElement = useLoaderData();
-  // const [onlineUsersCount, setOnlineUsersCount] = useState(0);
-  // const [users, setUsers] = useState({});
+  const [onlineUsersCount, setOnlineUsersCount] = useState(0);
+  const [users, setUsers] = useState({});
   const [dataStream, setDataStream] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
@@ -48,22 +48,22 @@ const GroupChat = () => {
   if (scroll) {
     scrollToBottom();
   }
-  const { users, onlineUsers } = useOutletContext();
-  // console.log(onlineUsers, "context users")
+
   useEffect(() => {
     clientSocket();
     scrollToBottom();
 
-    // socket.on("connect", () => {
-    //   const userDetails = { id: userID, username: username };
-    //   socket.emit("userDetails", userDetails);
-    // });
-    socket.emit("joinRoom", {roomName, userID});
-
-    // socket.on("userRecords", ({ userCount, userList }) => {
-    //   setOnlineUsersCount(userCount);
-    //   setUsers(userList);
-    // });
+    socket.on("connect", () => {
+      const userDetails = { id: userID, username: username };
+      socket.emit("groupUserDetails", userDetails);
+      
+      socket.emit("joinRoom", (roomName));
+    });
+    
+    socket.on("groupRecords", ({ groupUsersCount , groupUsersList }) => {
+      setOnlineUsersCount(groupUsersCount);
+      setUsers(groupUsersList);
+    });
 
     socket.on("alertToSelf", (message) => {
       setDataStream((prev) => [...prev, { type: "alert", content: message }]);
@@ -200,9 +200,9 @@ const GroupChat = () => {
         </h2>
         <div className="flex items-center text-xs sm:text-sm text-gray-400">
           <FiUsers className="mr-2" />
-          {onlineUsers === 1
+          {onlineUsersCount === 1
             ? "Just You Online"
-            : `${onlineUsers} members online`}
+            : `${onlineUsersCount} members online`}
         </div>
       </div>
 

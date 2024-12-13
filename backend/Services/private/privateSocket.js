@@ -1,5 +1,5 @@
 const { log } = console;
-const privateChats = (socket) => {
+const privateChats = (socket, io) => {
   socket.on("privateChat", (chat) => {
     log(chat, "privateChat");
   });
