@@ -137,8 +137,8 @@ function groupServices(socket, io) {
     delete groupID[confirmUser];
     delete groupUsers[confirmUser];
     emitActiveGroupUsers(io);
+    
     //notify users in the group
-
     socket.to(roomName).emit("leftRoom",`${username} has left the group`);
   });
 }

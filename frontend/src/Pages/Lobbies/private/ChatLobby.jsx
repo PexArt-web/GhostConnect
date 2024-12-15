@@ -1,8 +1,7 @@
 import { requireAuth } from "@/services/Auth/middleware/requireAuth";
-import { clientSocket, socket } from "@/services/weBSocket";
 import SharedAvatar from "@/shared/component/SharedAvatar";
 import SharedButton from "@/shared/component/SharedButton";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { FiPlus } from "react-icons/fi";
 import { useNavigate, useOutletContext } from "react-router-dom";
 
@@ -10,22 +9,24 @@ const ChatLobby = () => {
   requireAuth();
   const navigate = useNavigate();
   const [selectedUser, setSelectedUser] = useState(null);
-  console.log(selectedUser, "user selected");
+  const { onlineUsers, users, userID } = useOutletContext();
+
   const handleClick = () => {
     navigate("/lobby-layout/private-chat");
   };
-  const { onlineUsers, users, userID } = useOutletContext();
-  console.log(onlineUsers);
 
-  useEffect(() => {
-    clientSocket();
-    socket.emit("privateChat", "private chat");
-  }, []);
+  const handleUSerSelect = (id, username) => {
+    setSelectedUser({ id, username });
+    // Store selected user in local storage for later use
+    const userDetails = JSON.stringify({recipientID: id, recipientName: username})
+    localStorage.setItem('selectedUser', userDetails);
+  };
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-800 text-white px-6">
       <h1 className="text-3xl font-semibold mb-4">Start a Private Chat</h1>
       <p className="text-gray-300 mb-8 text-center">
-        Select someone to chat with. You’ll be connected privately for a 1-on-1
+        Select someone to chat with. You`ll be connected privately for a 1-on-1
         conversation.
       </p>
 
@@ -38,7 +39,7 @@ const ChatLobby = () => {
           {Object.entries(users).map(([id, username]) => (
             <div
               key={id}
-              onClick={() => setSelectedUser({ username })}
+              onClick={() => handleUSerSelect(id, username)}
               className={`flex items-center space-x-2 cursor-pointer p-2 rounded-lg ${
                 id === userID ? "bg-blue-600" : "bg-gray-800"
               } hover:bg-blue-500 transition duration-200`}
