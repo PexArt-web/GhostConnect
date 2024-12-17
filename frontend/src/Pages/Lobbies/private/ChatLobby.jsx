@@ -20,6 +20,8 @@ const ChatLobby = () => {
     // Store selected user in local storage for later use
     const userDetails = JSON.stringify({recipientID: id, recipientName: username})
     localStorage.setItem('selectedUser', userDetails);
+    console.log(userID, "userID", id , "selectedUserID");
+
   };
 
   return (

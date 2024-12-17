@@ -4,33 +4,47 @@ import SharedButton from "@/shared/component/SharedButton";
 import SharedInput from "@/shared/component/SharedInput";
 import { useEffect, useState } from "react";
 import { FiPlusCircle, FiSend } from "react-icons/fi";
+import { useOutletContext } from "react-router-dom";
 
 const MainGroupChat = () => {
   requireAuth();
   const selectedUserData = JSON.parse(localStorage.getItem("selectedUser"));
-  console.log("selectedUser", selectedUserData);
-
+  const { userID } = useOutletContext();
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
+  console.log(userID, "userID", selectedUserData.recipientID, "selectedUserID");
 
   useEffect(() => {
     clientSocket();
-    socket.on("connect", () => {
-      console.log("Connected to the server");
+    socket.on("connect", () =>{
+      console.log("Connected to websocket");
     });
+
+    socket.on("newPrivateMessage", (messageData) => {
+      console.log("New message", messageData);
+   setMessages(prevMessages => [...prevMessages, messageData]);
+    });
+
+    return () => {
+      socket.off("connect");
+      socket.off("newPrivateMessage");
+    };
   }, []);
 
-  const handleChange = (e)=>{
+  const handleChange = (e) => {
     setNewMessage(e.target.value);
-  }
+  };
   const handleSendMessage = () => {
     if (newMessage.trim()) {
-      setMessages([...messages, { sender: "user", content: newMessage }]);
+      const messageData = {
+        content: newMessage,
+        recipientId: selectedUserData.recipientID,
+        senderID: userID
+      }
+      socket.emit("sendMessage", (messageData));
       setNewMessage("");
     }
   };
-
-  
 
   return (
     <div className="flex flex-col h-screen bg-gray-900 text-white">

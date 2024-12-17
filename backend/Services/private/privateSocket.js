@@ -1,3 +1,5 @@
+const pc = require("../../Models/Blueprint/privateChatModel");
+
 const { log } = console;
 let userID = {};
 let users = {};
@@ -14,6 +16,25 @@ const privateChats = (socket, io) => {
     users[id] = username;
     //<--Active Users count & User List  -->
     emitActiveUsersDetails(io);
+  });
+
+  socket.on("sendMessage", async ({ content, recipientId, senderID }) => {
+    const messageData = new pc({
+      content,
+      recipientId,
+      senderID,
+    });
+    const saveToDatabase = await messageData.save();
+    if (!saveToDatabase) return;
+    const recipientSocket = userID[recipientId];
+    if(recipientSocket){
+      io.to(recipientSocket).emit("newPrivateMessage", saveToDatabase);
+    }else{  
+      console.log('User not found');
+      // socket.emit('error', 'User not found');
+      return;
+    }
+   
   });
 
   //<--Socket Disconnections-->
