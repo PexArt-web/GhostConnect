@@ -49,7 +49,7 @@ const privateChats = (socket, io) => {
       const recipientSocket = userID[recipientID];
       const senderSocket = userID[senderID];
       try {
-        if (!mongoose.Types.isObject(_id)) return;
+        if (!mongoose.Types.ObjectId.isValid(_id)) return;
         const updateMessage = await pc.findByIdAndUpdate(
           _id,
           {
@@ -63,9 +63,9 @@ const privateChats = (socket, io) => {
         }
         if (!recipientSocket && !senderSocket) return;
         //<-- Emit to the recipient side -->
-        io.to(recipientSocket).emit("updatedMessage", saveToDatabase);
+        io.to(recipientSocket).emit("updatedMessage", updateMessage);
         //<--Emit to the sender side-->
-        io.to(senderSocket).emit("updatedMessage", saveToDatabase);
+        io.to(senderSocket).emit("updatedMessage", updateMessage);
       } catch (error) {
         log(`Error updating message : ${error.message}`);
       }
@@ -80,7 +80,7 @@ const privateChats = (socket, io) => {
       const recipientSocket = userID[recipientId];
       const senderSocket = userID[senderID];
       try {
-        if (!mongoose.Types.isObject(deleteID)) return;
+        if (!mongoose.Types.ObjectId.isValid(deleteID)) return;
         const deleteMessage = await pc.findByIdAndDelete(deleteID);
         if (!deleteMessage) return;
         if (!recipientSocket && !senderSocket) return;
@@ -115,11 +115,12 @@ const privateChats = (socket, io) => {
     const removeUserId = Object.keys(userID).find(
       (index) => userID[index] === socket.id
     );
+    const username = users[removeUserId]
+    
 
     if (removeUserId) {
       delete users[removeUserId];
       delete userID[removeUserId];
-      const username = users[removeUserId];
       log(`${username} is offline`);
       //<--Active Users count & User List  -->
       emitActiveUsersDetails(io);
