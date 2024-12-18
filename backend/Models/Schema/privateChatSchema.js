@@ -13,6 +13,10 @@ const chatSchema = new Schema({
     },
     recipientId: {
         type: String
+    },
+    edited: { 
+        type: Boolean,
+        default: false
     }
 }, {timestamps : true})
 

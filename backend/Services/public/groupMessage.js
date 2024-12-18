@@ -90,7 +90,7 @@ function groupServices(socket, io) {
     );
     if (!updatedMessage) {
       return;
-    }
+    } 
     io.in(roomName).emit("updateMessage", updatedMessage);
   });
   //

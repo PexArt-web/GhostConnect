@@ -56,11 +56,11 @@ const GroupChat = () => {
     socket.on("connect", () => {
       const userDetails = { id: userID, username: username };
       socket.emit("groupUserDetails", userDetails);
-      
-      socket.emit("joinRoom", (roomName));
+
+      socket.emit("joinRoom", roomName);
     });
-    
-    socket.on("groupRecords", ({ groupUsersCount , groupUsersList }) => {
+
+    socket.on("groupRecords", ({ groupUsersCount, groupUsersList }) => {
       setOnlineUsersCount(groupUsersCount);
       setUsers(groupUsersList);
     });
@@ -184,11 +184,11 @@ const GroupChat = () => {
 
   const continueUpdateMessage = (item) => {
     const messageData = { messageID: item._id, message: messageUpdate };
-    cancelUpdateMessage();
     socket.emit("updatedMessage", {
       roomName,
       messageData,
     });
+    cancelUpdateMessage();
   };
 
   return (
