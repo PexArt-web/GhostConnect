@@ -9,7 +9,7 @@ function SplashScreen() {
       <h3 className="text-xl mb-2">Connect with anyone, anywhere, without revealing a trace.</h3>
       <p className="text-center max-w-md mb-4">
         Dive into chats that keep you anonymous but connected. No profiles, no judgments—
-        just real-time conversations in a space that’s private, fast, and secure.
+        just real-time conversations in a space that`s private, fast, and secure.
       </p>
       <p className="text-lg font-semibold mb-6">Your words, your world.</p>
 

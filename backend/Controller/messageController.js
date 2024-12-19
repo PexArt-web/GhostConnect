@@ -7,7 +7,6 @@ const groupMessage = async (req, res) => {
     if (!getAllMessages) {
       throw Error("No messages found");
     }
-
     res.status(200).json(getAllMessages);
   } catch (error) {
     log(`Error fetching document: ${error.message}`);

@@ -28,7 +28,11 @@ const messageSchema = new Schema(
     edited:{
       type: Boolean,
       default: false,
-    }
+    },
+    // user_id:{
+    //   type: String,
+    //   required: true,
+    // }
   },
   {
     timestamps: true,

@@ -1,4 +1,6 @@
 const jwt = require("jsonwebtoken")
+const User = require("../Models/Blueprint/userModel")
+const SECRET = process.env.TOKEN_SECRET
 
 const requireAuth = async (req, res, next) => {
     // destructing the authorization from the req.headers

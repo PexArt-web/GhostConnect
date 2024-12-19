@@ -1,3 +1,4 @@
+import { useAuthContext } from "@/hooks/useAuthContext";
 import { requireAuth } from "@/services/Auth/middleware/requireAuth";
 import { clientSocket, socket } from "@/services/weBSocket";
 import SharedButton from "@/shared/component/SharedButton";
@@ -15,6 +16,7 @@ const MainGroupChat = () => {
   requireAuth();
   const selectedUserData = JSON.parse(localStorage.getItem("selectedUser"));
   const { userID } = useOutletContext();
+  const { user } = useAuthContext()
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
@@ -76,10 +78,12 @@ const MainGroupChat = () => {
         content: newMessage,
         recipientId: selectedUserData.recipientID,
         senderID: userID,
+        authorization: `Bearer ${user.token}`
       };
       socket.emit("sendMessage", messageData);
       setNewMessage("");
     }
+    setUserIsTyping(null);
   };
 
   const openMessageDialog = (message) => {
