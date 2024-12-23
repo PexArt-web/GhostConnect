@@ -21,15 +21,16 @@ const privateChats = (socket, io) => {
   });
 
   socket.on("sendMessage", async ({ content, recipientId, senderID , authorization }) => {
-    const user_id = await socketAuth(authorization)
-    if(!user_id) return
-    log(user_id, "uuid")
+    // const user_id = await socketAuth(authorization)
+    // if(!user_id) return
+    // log(user_id, "uuid")
+
     const messageData = new pc({
       content,
       recipientId,
       senderID,
-      user_id,
     });
+
     const saveToDatabase = await messageData.save();
     if (!saveToDatabase) return;
     const recipientSocket = userID[recipientId];
@@ -86,8 +87,8 @@ const privateChats = (socket, io) => {
       const senderSocket = userID[senderID];
       try {
         if (!mongoose.Types.ObjectId.isValid(deleteID)) return;
-        const deleteMessage = await pc.findByIdAndDelete(deleteID);
-        // const deleteMessage = await pc.deleteMany({})
+        // const deleteMessage = await pc.findByIdAndDelete(deleteID);
+        const deleteMessage = await pc.deleteMany({})
         if (!deleteMessage) return;
         if (!recipientSocket && !senderSocket) return;
         //<-- emit to receiver side -- >

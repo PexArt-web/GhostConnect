@@ -133,6 +133,8 @@ const GroupChat = () => {
       sender: username,
       content: newMessage,
       senderID: userID,
+      // authorization: `Bearer ${user.token}`
+      
     };
     socket.emit("roomMessage", { roomName, messageData });
     setNewMessage("");

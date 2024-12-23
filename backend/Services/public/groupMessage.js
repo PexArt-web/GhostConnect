@@ -1,3 +1,4 @@
+const socketAuth = require("../../Middleware/socketAuth");
 const Message = require("../../Models/Blueprint/messageModel");
 const mongoose = require("mongoose");
 
@@ -63,12 +64,13 @@ function groupServices(socket, io) {
   // Handle room Messaging
   //<--send & receive messages -->
   socket.on("roomMessage", async ({ roomName, messageData }) => {
-    const { sender, content, senderID } = messageData;
-    
+    const { sender, content, senderID, authorization } = messageData;
+    // const user_id = await socketAuth(authorization);
     const message = new Message({
       sender,
       content,
       senderID,
+      // user_id,
     });
     const saveMessageDataToDatabase = await message.save();
     if (!saveMessageDataToDatabase) {
@@ -91,7 +93,7 @@ function groupServices(socket, io) {
     );
     if (!updatedMessage) {
       return;
-    } 
+    }
     io.in(roomName).emit("updateMessage", updatedMessage);
   });
   //
@@ -99,8 +101,8 @@ function groupServices(socket, io) {
   //<--Handle Message Delete
   socket.on("deleteMessage", async ({ roomName, deleteID }) => {
     if (!mongoose.Types.ObjectId.isValid(deleteID)) return;
-    const deleteMessage = await Message.findByIdAndDelete(deleteID);
-    // const deleteMessage = await Message.deleteMany({})
+    // const deleteMessage = await Message.findByIdAndDelete(deleteID);
+    const deleteMessage = await Message.deleteMany({})
     if (!deleteMessage) {
       return;
     }
@@ -138,9 +140,9 @@ function groupServices(socket, io) {
     delete groupID[confirmUser];
     delete groupUsers[confirmUser];
     emitActiveGroupUsers(io);
-    
+
     //notify users in the group
-    socket.to(roomName).emit("leftRoom",`${username} has left the group`);
+    socket.to(roomName).emit("leftRoom", `${username} has left the group`);
   });
 }
 
