@@ -4,6 +4,10 @@ const validator = require("validator");
 
 const userSchema = new Schema(
   {
+    uniqueID: {
+      type: String,
+      required: true,
+    },
     username: {
       type: String,
       required: true,
@@ -28,4 +32,4 @@ const userSchema = new Schema(
   { timestamps: true }
 );
 
-module.exports = userSchema
+module.exports = userSchema;

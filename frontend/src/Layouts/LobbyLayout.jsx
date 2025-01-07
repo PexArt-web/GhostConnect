@@ -13,14 +13,15 @@ const LobbyLayout = () => {
   const { user, dispatch } = useAuthContext();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
-  let userID = localStorage.getItem("userID");
-  const randomNumber = Math.floor(Math.random() * 111);
-  if (!userID) {
-    userID = `user-${Date.now()}-${randomNumber}`;
-    localStorage.setItem("userID", userID);
-  }
+  // let userID = localStorage.getItem("userID");
+  // const randomNumber = Math.floor(Math.random() * 111);
+  // if (!userID) {
+  //   userID = `user-${Date.now()}-${randomNumber}`;
+  //   localStorage.setItem("userID", userID);
+  // }
   const $user = JSON.parse(localStorage.getItem("user"));
-  const { username } = $user;
+  const { username, ID } = $user;
+  let userID = ID
   const [onlineUsers, setOnlineUsers] = useState(0)
 const [users, setUsers] = useState({})
   const handlePrivateChat = () => {

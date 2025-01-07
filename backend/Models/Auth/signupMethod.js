@@ -2,9 +2,10 @@ const validator = require("validator");
 const bcrypt = require("bcryptjs");
 const User = require("../Blueprint/userModel");
 const saltRound = parseInt(process.env.SALT_ROUND);
-const signup = async (username, email, password) => {
+const { log } = console;
+const signup = async (username, email, password, uniqueId) => {
   try {
-    if (!username || !email || !password) {
+    if (!username || !email || !password || !uniqueId) {
       throw Error("All fields are required");
     }
     if (!validator.isEmail(email)) {
@@ -27,6 +28,7 @@ const signup = async (username, email, password) => {
       username: username,
       email: email,
       password: hashedPassword,
+      uniqueID: uniqueId,
     });
     return user;
   } catch (error) {

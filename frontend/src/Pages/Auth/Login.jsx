@@ -15,7 +15,6 @@ const Login = () => {
   const navigation = useNavigation();
   const navigate = useNavigate();
   const actionData = useActionData();
-  console.log(actionData, "login");
   const { dispatch } = useAuthContext();
   useEffect(() => {
     if (

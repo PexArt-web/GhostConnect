@@ -15,7 +15,7 @@ import Signup from "./pages/Auth/Signup";
 import Login from "./pages/Auth/Login";
 import { loginAction } from "./handlers/Auth/loginAction";
 import { signupAction } from "./handlers/Auth/signupAction";
-import { messageLoader } from "./loaders/messageLoader";
+import { messageLoader, privateMessageLoader } from "./loaders/messageLoader";
 function App() {
   const router = createBrowserRouter(
     createRoutesFromElements(
@@ -25,7 +25,7 @@ function App() {
         <Route path="/login" action={loginAction} element={<Login />} />
         <Route path="lobby-layout" element={<LobbyLayout />}>
           <Route path="private-chat-lobby" element={<ChatLobby />} />
-          <Route path="private-chat" element={<MainChat />} />
+          <Route path="private-chat" element={<MainChat />} loader={privateMessageLoader}  />
           <Route path="group-chat-lobby" element={<GroupLobby />} />
           <Route
             path="group-chat"

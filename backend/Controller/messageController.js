@@ -20,15 +20,20 @@ const groupMessage = async (req, res) => {
 // <--private chats -->
 
 const getChats = async (req, res) => {
+  const { senderUiD, receiverUiD } = req.query;
+  log(senderUiD, "sender uid", receiverUiD, "receiver uid");
   try {
-    const pChats = await pc
-      .find({ senderID: { $exists: true }, recipientID: { $exists: true } })
-      .sort({ createdAt: -1 });
-
-      if(pChats){
-        res.status(200).json(pChats)
-      }
-
+    if (!senderUiD || !receiverUiD) return;
+    const pChats = await pc.find({
+      $or: [
+        { senderID: senderUiD },
+        { recipientID: senderUiD },
+        { senderID: receiverUiD },
+        { senderID: receiverUiD },
+      ],
+    });
+    if (!pChats) return;
+    res.status(200).json(pChats);
   } catch (error) {
     res
       .status(500)

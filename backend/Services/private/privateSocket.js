@@ -1,6 +1,6 @@
 const { default: mongoose } = require("mongoose");
 const pc = require("../../Models/Blueprint/privateChatModel");
-const socketAuth = require("../../Middleware/socketAuth");
+// const socketAuth = require("../../Middleware/socketAuth");
 
 const { log } = console;
 let userID = {};
@@ -9,7 +9,6 @@ function emitActiveUsersDetails(io) {
   //<--Active Users count & User List  -->
   const activeUser = Object.keys(users).length;
   const userRegistry = { userCount: activeUser, userList: users };
-  log(activeUser, "active");
   io.emit("userRecords", userRegistry);
 }
 const privateChats = (socket, io) => {
@@ -20,32 +19,35 @@ const privateChats = (socket, io) => {
     emitActiveUsersDetails(io);
   });
 
-  socket.on("sendMessage", async ({ content, recipientId, senderID , authorization }) => {
-    // const user_id = await socketAuth(authorization)
-    // if(!user_id) return
-    // log(user_id, "uuid")
+  socket.on(
+    "sendMessage",
+    async ({ content, recipientId, senderID, authorization }) => {
+      // const user_id = await socketAuth(authorization)
+      // if(!user_id) return
+      // log(user_id, "uuid")
 
-    const messageData = new pc({
-      content,
-      recipientId,
-      senderID,
-    });
+      const messageData = new pc({
+        content,
+        recipientId,
+        senderID,
+      });
 
-    const saveToDatabase = await messageData.save();
-    if (!saveToDatabase) return;
-    const recipientSocket = userID[recipientId];
-    const senderSocket = userID[senderID];
-    if (recipientSocket && senderSocket) {
-      //<--Emit to the recipient side-->
-      io.to(recipientSocket).emit("newPrivateMessage", saveToDatabase);
-      //<--Emit to the sender side-->
-      io.to(senderSocket).emit("newPrivateMessage", saveToDatabase);
-    } else {
-      console.log("receiver and sender not found");
-      // socket.emit('error', 'User not found');
-      return;
+      const saveToDatabase = await messageData.save();
+      if (!saveToDatabase) return;
+      const recipientSocket = userID[recipientId];
+      const senderSocket = userID[senderID];
+      if (recipientSocket && senderSocket) {
+        //<--Emit to the recipient side-->
+        io.to(recipientSocket).emit("newPrivateMessage", saveToDatabase);
+        //<--Emit to the sender side-->
+        io.to(senderSocket).emit("newPrivateMessage", saveToDatabase);
+      } else {
+        console.log("receiver and sender not found");
+        // socket.emit('error', 'User not found');
+        return;
+      }
     }
-  });
+  );
   //
 
   //<--update message -->
@@ -63,15 +65,13 @@ const privateChats = (socket, io) => {
           },
           { new: true }
         );
-        if (!updateMessage) {
-          log("error updating message");
-          return;
+        if (updateMessage) {
+          if (!recipientSocket && !senderSocket) return;
+          //<-- Emit to the recipient side -->
+          io.to(recipientSocket).emit("updatedMessage", updateMessage);
+          //<--Emit to the sender side-->
+          io.to(senderSocket).emit("updatedMessage", updateMessage);
         }
-        if (!recipientSocket && !senderSocket) return;
-        //<-- Emit to the recipient side -->
-        io.to(recipientSocket).emit("updatedMessage", updateMessage);
-        //<--Emit to the sender side-->
-        io.to(senderSocket).emit("updatedMessage", updateMessage);
       } catch (error) {
         log(`Error updating message : ${error.message}`);
       }
@@ -87,8 +87,8 @@ const privateChats = (socket, io) => {
       const senderSocket = userID[senderID];
       try {
         if (!mongoose.Types.ObjectId.isValid(deleteID)) return;
-        // const deleteMessage = await pc.findByIdAndDelete(deleteID);
-        const deleteMessage = await pc.deleteMany({})
+        const deleteMessage = await pc.findByIdAndDelete(deleteID);
+        // const deleteMessage = await pc.deleteMany({})
         if (!deleteMessage) return;
         if (!recipientSocket && !senderSocket) return;
         //<-- emit to receiver side -- >
@@ -110,10 +110,10 @@ const privateChats = (socket, io) => {
     io.to(recipientSocket).emit("inputFocus", `${username} is typing ...`);
   });
   //
-  socket.on("inputBlur", (recipientID)=>{
+  socket.on("inputBlur", (recipientID) => {
     const recipientSocket = userID[recipientID];
-    io.to(recipientSocket).emit("inputBlur", null)
-  })
+    io.to(recipientSocket).emit("inputBlur", null);
+  });
   //
 
   //<--Socket Disconnections-->
@@ -122,8 +122,7 @@ const privateChats = (socket, io) => {
     const removeUserId = Object.keys(userID).find(
       (index) => userID[index] === socket.id
     );
-    const username = users[removeUserId]
-    
+    const username = users[removeUserId];
 
     if (removeUserId) {
       delete users[removeUserId];

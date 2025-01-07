@@ -1,31 +1,44 @@
-// import { useAuthContext } from "@/hooks/useAuthContext";
+import { useAuthContext } from "@/hooks/useAuthContext";
 import { requireAuth } from "@/services/Auth/middleware/requireAuth";
 import { clientSocket, socket } from "@/services/weBSocket";
 import SharedButton from "@/shared/component/SharedButton";
-import SharedDialog from "@/shared/component/SharedDialog";
-import SharedDropDown from "@/shared/component/SharedDropDown";
+import SharedDialogue from "@/shared/component/SharedDialogue";
+import ComboboxDropdownMenu from "@/shared/component/SharedDropdownMenu";
 import SharedInput from "@/shared/component/SharedInput";
-import { useEffect, useState } from "react";
-import { FaTrash } from "react-icons/fa";
+import SuspenseFallback from "@/shared/component/SuspenseFallback";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { FiPlusCircle, FiSend } from "react-icons/fi";
-import { MdEdit } from "react-icons/md";
-import { TfiMoreAlt } from "react-icons/tfi";
-import { useOutletContext } from "react-router-dom";
+import { Await, useLoaderData, useOutletContext } from "react-router-dom";
 
 const MainGroupChat = () => {
   requireAuth();
+  const dataElement = useLoaderData();
   const selectedUserData = JSON.parse(localStorage.getItem("selectedUser"));
   const { userID } = useOutletContext();
-  // const { user } = useAuthContext()
+  const { user } = useAuthContext();
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
-  const [openDialog, setOpenDialog] = useState(false);
-  const [messageUpdate, setMessageUpdate] = useState("");
+  const [updatedText, setUpdatedText] = useState(null);
   const [userIsTyping, setUserIsTyping] = useState(null);
+  const [isModalVisible, setModalVisible] = useState(false);
+  const [active, setActive] = useState(false);
+  const [scroll, setScroll] = useState(false);
+  const messageContainerRef = useRef(null);
+  const scrollToBottom = () => {
+    const container = messageContainerRef.current;
+    if (container) {
+      container.scrollTo({ top: container.scrollHeight, behavior: "smooth" });
+    }
+  };
+  if (scroll) {
+    scrollToBottom();
+  }
 
   useEffect(() => {
     clientSocket();
+    scrollToBottom();
     socket.on("connect", () => {
+      setActive(true);
       console.log("Connected to websocket");
     });
 
@@ -34,6 +47,7 @@ const MainGroupChat = () => {
     });
 
     socket.on("updatedMessage", (messageUpdate) => {
+      console.log(messageUpdate, "updated message");
       setMessages((prevMessages) =>
         prevMessages.map((message) =>
           message._id === messageUpdate._id
@@ -77,7 +91,7 @@ const MainGroupChat = () => {
       const messageData = {
         content: newMessage,
         recipientId: selectedUserData.recipientID,
-        senderID: userID,
+        senderID: user.ID,
         // authorization: `Bearer ${user.token}`
       };
       socket.emit("sendMessage", messageData);
@@ -86,42 +100,18 @@ const MainGroupChat = () => {
     setUserIsTyping(null);
   };
 
-  const openMessageDialog = (message) => {
-    setOpenDialog((prevState) => !prevState);
-    setMessageUpdate(message.content);
-  };
-
   const handleMessageDelete = (message) => {
     const data = {
       deleteID: message._id,
       recipientId: selectedUserData.recipientID,
-      senderID: userID,
+      senderID: user.ID,
     };
     socket.emit("deleteTextMessage", data);
   };
 
-  const closeMessageDialog = () => {
-    setOpenDialog((prevState) => !prevState);
-  };
-
-  const editMessageUpdate = (e) => {
-    setMessageUpdate(e.target.value);
-  };
-
-  const continueMessageUpdate = (message) => {
-    const messageData = {
-      _id: message._id,
-      content: messageUpdate,
-      recipientID: selectedUserData.recipientID,
-      senderID: userID,
-    };
-    socket.emit("updateMessage", messageData);
-    closeMessageDialog();
-  };
-
   const handleFocus = () => {
     const data = {
-      senderID: userID,
+      senderID: user.ID,
       recipientID: selectedUserData.recipientID,
     };
     socket.emit("inputFocus", data);
@@ -130,6 +120,32 @@ const MainGroupChat = () => {
   const handleBlur = () => {
     const recipientID = selectedUserData.recipientID;
     socket.emit("inputBlur", recipientID);
+  };
+
+  const update = () => {
+    if (!updatedText) return;
+    alert(updatedText._id);
+    const messageData = {
+      _id: updatedText._id,
+      content: updatedText.content,
+      recipientID: selectedUserData.recipientID,
+      senderID: user.ID,
+    };
+    socket.emit("updateMessage", messageData);
+    setUpdatedText(null);
+    setModalVisible(false);
+  };
+
+  const handleEdit = (e) => {
+    setUpdatedText((prevState) => ({
+      ...prevState,
+      content: e.target.value,
+    }));
+  };
+
+  const controller = (message) => {
+    setModalVisible(true);
+    setUpdatedText(message);
   };
 
   return (
@@ -141,54 +157,69 @@ const MainGroupChat = () => {
           alt={`${selectedUserData?.recipientName}'s avatar`}
           className="w-10 h-10 rounded-full mr-4 border-2 border-green-500"
         />
-        <h2 className="text-xl font-semibold">
-          {selectedUserData?.recipientName}
-        </h2>
+
+        <div>
+          <h2 className="text-xl font-semibold">
+            {selectedUserData?.recipientName}
+          </h2>
+          <div className="flex items-center space-x-2">
+            <span
+              className={`w-3 h-3 rounded-full ${
+                active ? "bg-green-500" : "bg-gray-500"
+              }`}
+            ></span>
+            <span
+              className={`text-sm font-medium ${
+                active ? "text-green-400" : "text-gray-400"
+              }`}
+            >
+              {active ? "Online" : "Offline"}
+            </span>
+          </div>
+        </div>
       </div>
 
       {/* Chat Messages */}
-      <div className="flex-1 overflow-y-auto p-4">
-        {messages.map((message, index) => (
-          <div
-            key={index}
-            className={`flex ${
-              message.senderID === userID ? "justify-end" : "justify-start"
-            } mb-4`}
-          >
-            <div
-              className={`max-w-xs p-3 sm:max-w-md  rounded-lg relative ${
-                message.senderID === userID
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-700 text-gray-300"
-              }`}
-            >
-              {message.senderID === userID && (
-                <ul className="absolute top-1 right-3">
-                  <li>
-                    <SharedDropDown
-                      label={<TfiMoreAlt />}
-                      loadLabel1={"Update"}
-                      loadIcon1={<MdEdit />}
-                      loadLabel2={"Delete"}
-                      loadIcon2={<FaTrash />}
-                      handleUpdate={() => openMessageDialog(message)}
-                      handleDelete={() => handleMessageDelete(message)}
-                    />
-                  </li>
-                </ul>
-              )}
-              <p className="break-words mt-1 "> {message.content}</p>
-              <SharedDialog
-                open={openDialog}
-                title={"Edit Message"}
-                value={messageUpdate}
-                handleClose={closeMessageDialog}
-                editMessage={editMessageUpdate}
-                sendUpdate={() => continueMessageUpdate(message)}
-              />
-            </div>
-          </div>
-        ))}
+      <div className="flex-1 overflow-y-auto p-4" ref={messageContainerRef}>
+        <Suspense fallback={<SuspenseFallback />}>
+          <Await resolve={dataElement.getChats}>
+            {(resolvedData) => {
+              resolvedData ? setScroll(true) : scroll;
+              const chatMessages = [...resolvedData, ...messages];
+              return chatMessages.map((message) => (
+                <div
+                  key={message._id}
+                  className={`flex ${
+                    message.senderID === userID
+                      ? "justify-end"
+                      : "justify-start"
+                  } mb-4`}
+                >
+                  <div
+                    className={`max-w-xs p-3 sm:max-w-md  rounded-lg relative ${
+                      message.senderID === userID
+                        ? "bg-blue-600 text-white"
+                        : "bg-gray-700 text-gray-300"
+                    }`}
+                  >
+                    {message.senderID === userID && (
+                      <ul className="absolute top-0 right-1">
+                        <li>
+                          <ComboboxDropdownMenu
+                            handleClick={() => controller(message)}
+                            handleDelete={() => handleMessageDelete(message)}
+                          />
+                        </li>
+                      </ul>
+                    )}
+
+                    <p className="break-words mt-1 "> {message.content}</p>
+                  </div>
+                </div>
+              ));
+            }}
+          </Await>
+        </Suspense>
       </div>
 
       {userIsTyping && (
@@ -213,6 +244,15 @@ const MainGroupChat = () => {
       )}
 
       {/* Message Input Area */}
+      <div>
+        <SharedDialogue
+          isVisible={isModalVisible}
+          onClose={() => setModalVisible(false)}
+          handleUpdate={() => update()}
+          data={updatedText}
+          handleEditor={handleEdit}
+        />
+      </div>
       <div className="p-4 bg-gray-800 flex items-center">
         <SharedButton
           className={"text-blue-400 text-2xl mr-2"}
@@ -220,6 +260,7 @@ const MainGroupChat = () => {
         />
         <SharedInput
           type={"text"}
+          v
           value={newMessage}
           onChange={handleChange}
           onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}

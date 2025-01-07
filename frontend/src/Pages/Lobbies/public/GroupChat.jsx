@@ -1,18 +1,15 @@
 import { requireAuth } from "@/services/Auth/middleware/requireAuth";
 import { clientSocket, socket } from "@/services/weBSocket";
 import SharedButton from "@/shared/component/SharedButton";
-import SharedDropDown from "@/shared/component/SharedDropDown";
 import SharedInput from "@/shared/component/SharedInput";
 import { Suspense, useEffect, useRef, useState } from "react";
-import { FiSend, FiUsers } from "react-icons/fi";
-import { TfiMoreAlt } from "react-icons/tfi";
-import { MdEdit } from "react-icons/md";
-import { FaTrash } from "react-icons/fa";
-import SharedDialog from "@/shared/component/SharedDialog";
+import { FiSend, FiUsers } from "react-icons/fi";  
 import moment from "moment";
 import { Await, useLoaderData } from "react-router-dom";
 import SuspenseFallback from "@/shared/component/SuspenseFallback";
 import SharedAvatar from "@/shared/component/SharedAvatar";
+import ComboboxDropdownMenu from "@/shared/component/SharedDropdownMenu";
+import SharedDialogue from "@/shared/component/SharedDialogue";
 
 const GroupChat = () => {
   requireAuth();
@@ -21,9 +18,9 @@ const GroupChat = () => {
   const [users, setUsers] = useState({});
   const [dataStream, setDataStream] = useState([]);
   const [newMessage, setNewMessage] = useState("");
-  const [openDialog, setOpenDialog] = useState(false);
   const [typingUser, setTypingUser] = useState(null);
-  const [messageUpdate, setMessageUpdate] = useState("");
+  const [isModalVisible, setModalVisible] = useState(false);
+  const [updatedText, setUpdatedText] = useState("");
   const messageContainerRef = useRef(null);
   const [scroll, setScroll] = useState(false);
   const user = JSON.parse(localStorage.getItem("user"));
@@ -134,7 +131,6 @@ const GroupChat = () => {
       content: newMessage,
       senderID: userID,
       // authorization: `Bearer ${user.token}`
-      
     };
     socket.emit("roomMessage", { roomName, messageData });
     setNewMessage("");
@@ -165,32 +161,34 @@ const GroupChat = () => {
     if (e.key === "Enter") handleSendMessage();
   };
 
-  const openMessageUpdate = (item) => {
-    if (!item.type === "message") return;
-    setOpenDialog((prevState) => !prevState);
-    setMessageUpdate(item.content);
-  };
-
-  const editMessageUpdate = (e) => {
-    setMessageUpdate(e.target.value);
-  };
-
   const handleMessageDelete = (item) => {
     const deleteID = item._id;
     socket.emit("deleteMessage", { roomName, deleteID });
   };
 
-  const cancelUpdateMessage = () => {
-    setOpenDialog((prevState) => !prevState);
-  };
-
-  const continueUpdateMessage = (item) => {
-    const messageData = { messageID: item._id, message: messageUpdate };
+  const continueUpdateMessage = () => {
+    if (!updatedText) return;
+    const messageData = {
+      messageID: updatedText._id,
+      message: updatedText.content,
+    };
     socket.emit("updatedMessage", {
       roomName,
       messageData,
     });
-    cancelUpdateMessage();
+    setModalVisible(false);
+  };
+
+  const controller = (item) => {
+    setModalVisible(true);
+    setUpdatedText(item);
+  };
+
+  const handleEdit = (e) => {
+    setUpdatedText((prevState) => ({
+      ...prevState,
+      content: e.target.value,
+    }));
   };
 
   return (
@@ -262,13 +260,8 @@ const GroupChat = () => {
                           {item.senderID === userID && (
                             <ul className="absolute top-2 right-2">
                               <li>
-                                <SharedDropDown
-                                  label={<TfiMoreAlt />}
-                                  loadLabel1={"Update"}
-                                  loadIcon1={<MdEdit />}
-                                  loadIcon2={<FaTrash />}
-                                  loadLabel2={"Delete"}
-                                  handleUpdate={() => openMessageUpdate(item)}
+                                <ComboboxDropdownMenu
+                                  handleClick={() => controller(item)}
                                   handleDelete={() => handleMessageDelete(item)}
                                 />
                               </li>
@@ -290,14 +283,6 @@ const GroupChat = () => {
                               sent
                             </span>
                           </div>
-                          <SharedDialog
-                            open={openDialog}
-                            title={"Edit Message"}
-                            handleClose={cancelUpdateMessage}
-                            sendUpdate={() => continueUpdateMessage(item)}
-                            value={messageUpdate}
-                            editMessage={editMessageUpdate}
-                          />
                         </div>
                       </div>
                     )}
@@ -333,6 +318,15 @@ const GroupChat = () => {
 
       {/*  */}
 
+      <div>
+        <SharedDialogue
+          isVisible={isModalVisible}
+          onClose={() => setModalVisible(false)}
+          data={updatedText}
+          handleEditor={handleEdit}
+          handleUpdate={continueUpdateMessage}
+        />
+      </div>
       <div className="p-4 bg-gray-800 flex items-center space-x-2">
         <SharedInput
           type="text"

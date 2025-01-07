@@ -17,6 +17,7 @@ const ChatLobby = () => {
 
   const handleUSerSelect = (id, username) => {
     setSelectedUser({ id, username });
+    alert(id, 'user selected ID')
     // Store selected user in local storage for later use
     const userDetails = JSON.stringify({recipientID: id, recipientName: username})
     localStorage.setItem('selectedUser', userDetails);
