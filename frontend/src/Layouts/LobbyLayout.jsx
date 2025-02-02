@@ -5,25 +5,28 @@ import { requireAuth } from "@/services/Auth/middleware/requireAuth";
 import { Outlet, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { clientSocket, socket } from "@/services/weBSocket";
-
+import { FiUserPlus } from "react-icons/fi";
+import SharedAlert from "@/shared/component/SharedAlert";
 
 const LobbyLayout = () => {
   requireAuth();
   const navigate = useNavigate();
   const { user, dispatch } = useAuthContext();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isFriendRequestOpen, setIsFriendRequestOpen] = useState(false);
+  const [friendRequests, setFriendRequests] = useState([]);
+  const [requestNotification, setRequestNotification] = useState(false);
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
-  // let userID = localStorage.getItem("userID");
-  // const randomNumber = Math.floor(Math.random() * 111);
-  // if (!userID) {
-  //   userID = `user-${Date.now()}-${randomNumber}`;
-  //   localStorage.setItem("userID", userID);
-  // }
+  const toggleFriendRequest = () =>
+    setIsFriendRequestOpen(!isFriendRequestOpen);
+
   const $user = JSON.parse(localStorage.getItem("user"));
   const { username, ID } = $user;
-  let userID = ID
-  const [onlineUsers, setOnlineUsers] = useState(0)
-const [users, setUsers] = useState({})
+  let userID = ID;
+
+  const [onlineUsers, setOnlineUsers] = useState(0);
+  const [users, setUsers] = useState({});
+
   const handlePrivateChat = () => {
     navigate("private-chat-lobby");
   };
@@ -46,16 +49,26 @@ const [users, setUsers] = useState({})
     });
 
     socket.on("userRecords", ({ userCount, userList }) => {
-      setOnlineUsers(userCount)
-      setUsers(userList)
+      setOnlineUsers(userCount - 1);
+      setUsers(userList);
     });
 
-    return()=>{
+    socket.on("friendRequest", (requests) => {
+      alert("a new friend request has been received + from lobby " + requests);
+      setRequestNotification(true);
+      setFriendRequests(requests);
+    });
+    console.log("friendRequests", requestNotification, "from effect lobby layout");
+
+    return () => {
       socket.off("connect");
       socket.off("userRecords");
-    }
-  }, [userID , username]);
+      socket.off("friendRequests");
+    };
+  }, [userID, username]);
+  console.log(requestNotification, "requestNotification", "after lobby layout effect");
 
+  // requestNotification ? alert("true request") : alert("false request");
 
   return (
     <div className="flex h-screen">
@@ -72,7 +85,6 @@ const [users, setUsers] = useState({})
           handleClick={handlePrivateChat}
           className={"bg-blue-500 hover:bg-blue-600 py-2 px-4 rounded mb-2"}
           label={"Private Chat Lobby"}
-          // disabled={true}
         />
 
         <SharedButton
@@ -80,6 +92,48 @@ const [users, setUsers] = useState({})
           className={"bg-green-500 hover:bg-green-600 py-2 px-4 rounded mb-4"}
           label={"Group Chat Lobby"}
         />
+
+        {/* Friend Request Section */}
+        <div className="relative mb-4">
+          <button
+            onClick={toggleFriendRequest}
+            className="flex items-center gap-2 bg-gray-700 hover:bg-gray-600 py-2 px-4 rounded"
+          >
+            <FiUserPlus className="text-lg" />
+            Friend Requests
+          </button>
+
+          {isFriendRequestOpen && (
+            <div className="absolute top-full left-0 mt-2 w-64 bg-white text-black rounded shadow-lg p-4 z-10">
+              <h3 className="text-lg font-semibold mb-2">Friend Requests</h3>
+              {friendRequests.length > 0 ? (
+                <ul>
+                  {friendRequests.map((request, index) => (
+                    <li
+                      key={index}
+                      className="flex justify-between items-center mb-2 last:mb-0"
+                    >
+                      <span>{request.username}</span>
+                      <button className="text-sm bg-blue-500 hover:bg-blue-600 text-white py-1 px-2 rounded">
+                        Accept
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p>No new friend requests.</p>
+              )}
+            </div>
+          )}
+          <div className="mt-2">
+            <SharedAlert
+              title={"New Friend Request"}
+              label={"You have a new friend request from"}
+              button={true}
+              className={requestNotification ? "block" : "hidden"}
+            />
+          </div>
+        </div>
 
         <div className="flex-grow"></div>
         <SharedButton
@@ -90,12 +144,50 @@ const [users, setUsers] = useState({})
       </div>
 
       {/* for sm Screen Sidebar Toggle */}
-      <div className="md:hidden fixed top-0 left-0 bg-gray-800 text-white w-full p-4 z-10 mb-4">
+      <div className="md:hidden fixed top-0 left-0 bg-gray-800 text-white w-full p-4 z-10 mb-4 flex justify-between items-center">
         <SharedButton
           handleClick={toggleSidebar}
           className={"bg-blue-500 py-2 px-4 rounded hover:bg-blue-600"}
           label={"Menu"}
         />
+
+        <SharedAlert
+          title={"New Friend Request"}
+          label={"You have a new friend request from"}
+          button={true}
+        />
+        {/* Friend Request Button for Small Screens */}
+        <div className="relative">
+          <button
+            onClick={toggleFriendRequest}
+            className="flex items-center gap-2 bg-gray-700 hover:bg-gray-600 py-2 px-4 rounded"
+          >
+            <FiUserPlus className="text-lg" />
+          </button>
+
+          {isFriendRequestOpen && (
+            <div className="absolute top-full right-0 mt-2 w-64 bg-white text-black rounded shadow-lg p-4 z-20">
+              <h3 className="text-lg font-semibold mb-2">Friend Requests</h3>
+              {friendRequests.length > 0 ? (
+                <ul>
+                  {friendRequests.map((request, index) => (
+                    <li
+                      key={index}
+                      className="flex justify-between items-center mb-2 last:mb-0"
+                    >
+                      <span>{request.username}</span>
+                      <button className="text-sm bg-blue-500 hover:bg-blue-600 text-white py-1 px-2 rounded">
+                        Accept
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p>No new friend requests.</p>
+              )}
+            </div>
+          )}
+        </div>
       </div>
       {isSidebarOpen && (
         <div
@@ -114,7 +206,6 @@ const [users, setUsers] = useState({})
               handleClick={handlePrivateChat}
               className={"bg-blue-500 hover:bg-blue-600 py-2 px-4 rounded mb-2"}
               label={"Private Chat Lobby"}
-              // disabled={true}
             />
 
             <SharedButton
@@ -136,7 +227,7 @@ const [users, setUsers] = useState({})
 
       {/* Main Content */}
       <div className="flex-1 bg-gray-100 p-4 mt-16 md:mt-0">
-        <Outlet context={{onlineUsers, users , userID}} />
+        <Outlet context={{ onlineUsers, users, userID }} />
       </div>
     </div>
   );

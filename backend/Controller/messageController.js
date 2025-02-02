@@ -21,7 +21,6 @@ const groupMessage = async (req, res) => {
 
 const getChats = async (req, res) => {
   const { senderUiD, receiverUiD } = req.query;
-  log(senderUiD, "sender uid", receiverUiD, "receiver uid");
   try {
     if (!senderUiD || !receiverUiD) return;
     const pChats = await pc.find({

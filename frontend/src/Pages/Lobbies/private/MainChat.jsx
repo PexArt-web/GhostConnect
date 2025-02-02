@@ -14,14 +14,15 @@ const MainGroupChat = () => {
   requireAuth();
   const dataElement = useLoaderData();
   const selectedUserData = JSON.parse(localStorage.getItem("selectedUser"));
-  const { userID } = useOutletContext();
+  const { userID, users } = useOutletContext();
+  console.log(users, "main users");
   const { user } = useAuthContext();
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [updatedText, setUpdatedText] = useState(null);
   const [userIsTyping, setUserIsTyping] = useState(null);
+  // const [lastSeen, setLastSeen] = useState(null);
   const [isModalVisible, setModalVisible] = useState(false);
-  const [active, setActive] = useState(false);
   const [scroll, setScroll] = useState(false);
   const messageContainerRef = useRef(null);
   const scrollToBottom = () => {
@@ -38,8 +39,7 @@ const MainGroupChat = () => {
     clientSocket();
     scrollToBottom();
     socket.on("connect", () => {
-      setActive(true);
-      console.log("Connected to websocket");
+      console.log("socket connected");
     });
 
     socket.on("newPrivateMessage", (messageData) => {
@@ -75,6 +75,7 @@ const MainGroupChat = () => {
       setUserIsTyping(blurData);
     });
 
+
     return () => {
       socket.off("connect");
       socket.off("newPrivateMessage");
@@ -82,6 +83,7 @@ const MainGroupChat = () => {
       socket.off("messageDeleted");
     };
   }, []);
+
 
   const handleChange = (e) => {
     setNewMessage(e.target.value);
@@ -162,20 +164,32 @@ const MainGroupChat = () => {
           <h2 className="text-xl font-semibold">
             {selectedUserData?.recipientName}
           </h2>
-          <div className="flex items-center space-x-2">
+          {/* <div className="flex items-center space-x-2">
             <span
-              className={`w-3 h-3 rounded-full ${
+              className={`w-3 h-3 rounded-full transition-all duration-300 ${
                 active ? "bg-green-500" : "bg-gray-500"
               }`}
             ></span>
+
             <span
-              className={`text-sm font-medium ${
+              className={`text-sm font-medium transition-all duration-300 ${
                 active ? "text-green-400" : "text-gray-400"
               }`}
             >
-              {active ? "Online" : "Offline"}
+              {active ? (
+                "Online"
+              ) : (
+                <span>
+                  Offline{" "}
+                  {lastSeen && (
+                    <span className="text-xs text-gray-500 transition-opacity duration-500 opacity-0 group-hover:opacity-100">
+                      (Last seen: {lastSeen})
+                    </span>
+                  )}
+                </span>
+              )}
             </span>
-          </div>
+          </div> */}
         </div>
       </div>
 

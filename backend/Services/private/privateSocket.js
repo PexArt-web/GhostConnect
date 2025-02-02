@@ -1,6 +1,7 @@
 const { default: mongoose } = require("mongoose");
 const pc = require("../../Models/Blueprint/privateChatModel");
 // const socketAuth = require("../../Middleware/socketAuth");
+const date = new Date();
 
 const { log } = console;
 let userID = {};
@@ -11,6 +12,15 @@ function emitActiveUsersDetails(io) {
   const userRegistry = { userCount: activeUser, userList: users };
   io.emit("userRecords", userRegistry);
 }
+// for disconnected users
+
+function emitInActiveUsers(io){
+  const inActiveUser = Object.keys(users).length;
+  const disconnectedUserRegistry = { userCount: inActiveUser, userList: users, status: "InActive" };
+  io.emit("disconnectedUsers", disconnectedUserRegistry);
+  console.log(disconnectedUserRegistry, "query disconnected users");
+}
+
 const privateChats = (socket, io) => {
   socket.on("userDetails", ({ id, username }) => {
     userID[id] = socket.id;
@@ -18,6 +28,8 @@ const privateChats = (socket, io) => {
     //<--Active Users count & User List  -->
     emitActiveUsersDetails(io);
   });
+
+
 
   socket.on(
     "sendMessage",
@@ -42,7 +54,7 @@ const privateChats = (socket, io) => {
         //<--Emit to the sender side-->
         io.to(senderSocket).emit("newPrivateMessage", saveToDatabase);
       } else {
-        console.log("receiver and sender not found");
+        log("receiver and sender not found");
         // socket.emit('error', 'User not found');
         return;
       }
@@ -116,19 +128,30 @@ const privateChats = (socket, io) => {
   });
   //
 
+
+  //<--Friend Request handle-->
+  socket.on("sendFriendRequest", ({ id, username }) => {
+    log(id , username + " friend request");
+    const recipientSocket = userID[id];
+    if (!recipientSocket) return;
+    io.to(recipientSocket).emit("friendRequest", { id, username });
+  })
   //<--Socket Disconnections-->
   socket.on("disconnect", () => {
     log("Disconnected");
     const removeUserId = Object.keys(userID).find(
       (index) => userID[index] === socket.id
     );
+    // const removeActivity = 
     const username = users[removeUserId];
-
+    const date = new Date();
     if (removeUserId) {
       delete users[removeUserId];
       delete userID[removeUserId];
-      log(`${username} is offline`);
+      // io.emit("lastSeen", { username, lastSeen: date.toUTCString() });
+      log(`${username} is offline at ${date.toUTCString()}`);
       //<--Active Users count & User List  -->
+      emitInActiveUsers(io)
       emitActiveUsersDetails(io);
     }
   });
