@@ -13,25 +13,18 @@ const ChatLobby = () => {
   const navigate = useNavigate();
   const [selectedUser, setSelectedUser] = useState(null);
   const [friends, setFriends] = useState([]);
-  const [friendRequestList, setFriendRequestList] = useState([]);
+  // const [friendRequestList, setFriendRequestList] = useState([]);
   const [requestNotification, setRequestNotification] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const { onlineUsers, users, userID } = useOutletContext();
-  const [showAlert, setShowAlert] = useState(true);
 
   useEffect(() => {
     clientSocket();
-    // socket.on("friendRequest", (requests) => {
-    //   setRequestNotification(true);
-    //   setFriendRequestList(requests);
-    //   alert("a new friend request has been received + " + requests);
-    //   console.log(requests, "requests");
-    // });
+
     return () => {
-      socket.off("friendRequest");
+      // socket.off("friendRequest");
     };
   }, []);
-  console.log("friendRequests", requestNotification);
 
   const handleUserSelect = (id, username) => {
     setSelectedUser({ id, username });
@@ -41,8 +34,7 @@ const ChatLobby = () => {
     });
     localStorage.setItem("selectedUser", userDetails);
   };
-  console.log(selectedUser, "selectedUser");
-  console.log(onlineUsers, "onlineUsers");
+
   const handleAddFriend = (id, username) => {
     if (!id || !username) return;
     socket.emit("sendFriendRequest", { id, username });
@@ -50,11 +42,8 @@ const ChatLobby = () => {
     // //   const isOnline = !!users[id]
     // //   setFriends((prev) => [...prev, { id, username, isOnline }]);
     // // }
-    setShowAlert(true);
-    // alert("requesting")
     setRequestNotification(true);
   };
-  // alert(showAlert)
 
   // const handleAcceptFriendRequest = (id) => {
   //   socket.emit("acceptFriendRequest", id);
@@ -62,33 +51,18 @@ const ChatLobby = () => {
   //   setShowAlert(true);
   // };
 
-  // friendRequestList ? setShowAlert(true) : showAlert
-  // showAlert
-  //   ? setTimeout(() => {
-  //       setShowAlert(false);
-  //     }, 20000)
-  //   : showAlert;
-
-  function closeNotification  () {
+  function closeNotification() {
     if (requestNotification) {
       setTimeout(() => {
         setRequestNotification(false);
       }, 4000);
     }
   }
-  closeNotification()
+  closeNotification();
 
   const handleStartChat = () => {
     navigate("/lobby-layout/private-chat");
   };
-
-  console.log(users, "users list");
-
-  const entryUser = Object.entries(users);
-
-  console.log(entryUser, "users array");
-
-  console.log(searchQuery, "search query");
 
   const filteredUsers = Object.entries(users).filter(([id, username]) =>
     username.toLowerCase().includes(searchQuery.toLowerCase())
@@ -100,12 +74,10 @@ const ChatLobby = () => {
       <SharedAlert
         title={"Friend Request Sent"}
         label={"A new friend request has been sent"}
-        className={showAlert ? "block" : "hidden"}
         button={false}
         openNotification={requestNotification}
       />
-      {/* alert for friend request */}
-
+      
       <h1 className="text-3xl font-semibold mb-4 text-center">Chat Lobby</h1>
       <p className="text-gray-300 mb-6 text-center">
         Search for users to add as friends or start a private chat.
