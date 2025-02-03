@@ -54,21 +54,24 @@ const LobbyLayout = () => {
     });
 
     socket.on("friendRequest", (requests) => {
-      alert("a new friend request has been received + from lobby " + requests);
       setRequestNotification(true);
       setFriendRequests(requests);
     });
-    console.log("friendRequests", requestNotification, "from effect lobby layout");
+  
 
     return () => {
       socket.off("connect");
       socket.off("userRecords");
-      socket.off("friendRequests");
+      socket.off("friendRequest");
     };
-  }, [userID, username]);
-  console.log(requestNotification, "requestNotification", "after lobby layout effect");
+  }, [userID, username, requestNotification]);
+  console.log(
+    requestNotification,
+    "requestNotification",
+    "after lobby layout effect"
+  );
 
-  // requestNotification ? alert("true request") : alert("false request");
+
 
   return (
     <div className="flex h-screen">
@@ -95,13 +98,12 @@ const LobbyLayout = () => {
 
         {/* Friend Request Section */}
         <div className="relative mb-4">
-          <button
-            onClick={toggleFriendRequest}
+          <SharedButton
+            handleClick={toggleFriendRequest}
             className="flex items-center gap-2 bg-gray-700 hover:bg-gray-600 py-2 px-4 rounded"
-          >
-            <FiUserPlus className="text-lg" />
-            Friend Requests
-          </button>
+            label={`${(<FiUserPlus className="text-lg" />)}
+            "Friend Requests"`}
+          />
 
           {isFriendRequestOpen && (
             <div className="absolute top-full left-0 mt-2 w-64 bg-white text-black rounded shadow-lg p-4 z-10">
@@ -114,9 +116,10 @@ const LobbyLayout = () => {
                       className="flex justify-between items-center mb-2 last:mb-0"
                     >
                       <span>{request.username}</span>
-                      <button className="text-sm bg-blue-500 hover:bg-blue-600 text-white py-1 px-2 rounded">
-                        Accept
-                      </button>
+                      <SharedButton
+                        className="text-sm bg-blue-500 hover:bg-blue-600 text-white py-1 px-2 rounded"
+                        label={"Accept"}
+                      />
                     </li>
                   ))}
                 </ul>
@@ -125,14 +128,15 @@ const LobbyLayout = () => {
               )}
             </div>
           )}
-          <div className="mt-2">
-            <SharedAlert
-              title={"New Friend Request"}
-              label={"You have a new friend request from"}
-              button={true}
-              className={requestNotification ? "block" : "hidden"}
-            />
-          </div>
+
+          <SharedAlert
+            title={"New Friend Request"}
+            label={"You have a new friend request from"}
+            button={true}
+            openNotification={requestNotification}
+            onClose={() => setRequestNotification(false)}
+         
+          />
         </div>
 
         <div className="flex-grow"></div>
@@ -155,15 +159,16 @@ const LobbyLayout = () => {
           title={"New Friend Request"}
           label={"You have a new friend request from"}
           button={true}
+          openNotification={requestNotification}
+          onClose={() => setRequestNotification(false)}
         />
         {/* Friend Request Button for Small Screens */}
         <div className="relative">
-          <button
-            onClick={toggleFriendRequest}
+          <SharedButton
+            handleClick={toggleFriendRequest}
             className="flex items-center gap-2 bg-gray-700 hover:bg-gray-600 py-2 px-4 rounded"
-          >
-            <FiUserPlus className="text-lg" />
-          </button>
+            label={<FiUserPlus className="text-lg" />}
+          />
 
           {isFriendRequestOpen && (
             <div className="absolute top-full right-0 mt-2 w-64 bg-white text-black rounded shadow-lg p-4 z-20">
@@ -176,9 +181,11 @@ const LobbyLayout = () => {
                       className="flex justify-between items-center mb-2 last:mb-0"
                     >
                       <span>{request.username}</span>
-                      <button className="text-sm bg-blue-500 hover:bg-blue-600 text-white py-1 px-2 rounded">
-                        Accept
-                      </button>
+                      <SharedButton
+                      className="text-sm bg-blue-500 hover:bg-blue-600 text-white py-1 px-2 rounded"
+                      label={"Accept"}
+                      />
+                      
                     </li>
                   ))}
                 </ul>
