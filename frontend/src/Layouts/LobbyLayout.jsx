@@ -55,23 +55,21 @@ const LobbyLayout = () => {
 
     socket.on("friendRequest", (requests) => {
       setRequestNotification(true);
-      setFriendRequests(requests);
+      setFriendRequests([requests]);
     });
-  
+    console.log(friendRequests, "friendRequest from layout");
 
     return () => {
       socket.off("connect");
       socket.off("userRecords");
       socket.off("friendRequest");
     };
-  }, [userID, username, requestNotification]);
+  }, [userID, username, requestNotification, friendRequests]);
   console.log(
     requestNotification,
     "requestNotification",
     "after lobby layout effect"
   );
-
-
 
   return (
     <div className="flex h-screen">
@@ -100,9 +98,15 @@ const LobbyLayout = () => {
         <div className="relative mb-4">
           <SharedButton
             handleClick={toggleFriendRequest}
-            className="flex items-center gap-2 bg-gray-700 hover:bg-gray-600 py-2 px-4 rounded"
-            label={`${(<FiUserPlus className="text-lg" />)}
-            "Friend Requests"`}
+            className="relative flex items-center gap-2 bg-gray-700 hover:bg-gray-600 py-2 px-4 rounded"
+            label={
+              <div className="relative">
+                <FiUserPlus className="text-lg" />
+                {friendRequests && (
+                  <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
+                )}
+              </div>
+            }
           />
 
           {isFriendRequestOpen && (
@@ -120,6 +124,11 @@ const LobbyLayout = () => {
                         className="text-sm bg-blue-500 hover:bg-blue-600 text-white py-1 px-2 rounded"
                         label={"Accept"}
                       />
+
+                      <SharedButton
+                        className="text-sm bg-red-500 hover:bg-red-600 text-white py-1 px-2 rounded"
+                        label={"Decline"}
+                      />
                     </li>
                   ))}
                 </ul>
@@ -131,11 +140,19 @@ const LobbyLayout = () => {
 
           <SharedAlert
             title={"New Friend Request"}
-            label={"You have a new friend request from"}
+            label={
+              <span>
+                You have a new friend request from{" "}
+                <span className="font-bold text-blue-500 animate-pulse">
+                  {friendRequests.length > 0
+                    ? friendRequests[0].username
+                    : "Someone"}
+                </span>
+              </span>
+            }
             button={true}
             openNotification={requestNotification}
             onClose={() => setRequestNotification(false)}
-         
           />
         </div>
 
@@ -157,7 +174,17 @@ const LobbyLayout = () => {
 
         <SharedAlert
           title={"New Friend Request"}
-          label={"You have a new friend request from"}
+          label={
+            <span>
+              You have a new friend request from{" "}
+              <span className="font-bold text-blue-500 animate-pulse">
+                {friendRequests.length > 0
+                  ? friendRequests[0].username
+                  : "Someone"}
+              </span>
+          
+            </span>
+          }
           button={true}
           openNotification={requestNotification}
           onClose={() => setRequestNotification(false)}
@@ -167,7 +194,14 @@ const LobbyLayout = () => {
           <SharedButton
             handleClick={toggleFriendRequest}
             className="flex items-center gap-2 bg-gray-700 hover:bg-gray-600 py-2 px-4 rounded"
-            label={<FiUserPlus className="text-lg" />}
+            label={
+              <div className="relative">
+                <FiUserPlus className="text-lg" />
+                {requestNotification && (
+                  <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
+                )}
+              </div>
+            }
           />
 
           {isFriendRequestOpen && (
@@ -182,10 +216,9 @@ const LobbyLayout = () => {
                     >
                       <span>{request.username}</span>
                       <SharedButton
-                      className="text-sm bg-blue-500 hover:bg-blue-600 text-white py-1 px-2 rounded"
-                      label={"Accept"}
+                        className="text-sm bg-blue-500 hover:bg-blue-600 text-white py-1 px-2 rounded"
+                        label={"Accept"}
                       />
-                      
                     </li>
                   ))}
                 </ul>
