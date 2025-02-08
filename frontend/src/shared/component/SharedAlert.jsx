@@ -3,7 +3,7 @@ import { Terminal } from "lucide-react";
 import { IoClose } from "react-icons/io5";
 import SharedButton from "./SharedButton";
 
-const SharedAlert = ({ title, label, className, button, openNotification, onClose }) => {
+const SharedAlert = ({ title, label, className, button, openNotification, onClose, acceptRequest, declineRequest }) => {
   if (!openNotification) return null;
 
   return (
@@ -41,10 +41,12 @@ const SharedAlert = ({ title, label, className, button, openNotification, onClos
           <SharedButton
             className="px-4 py-2 text-sm font-medium text-white bg-green-500 hover:bg-green-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none"
             label={"Accept"}
+            handleClick={acceptRequest}
           />
           <SharedButton
             className="px-4 py-2 text-sm font-medium text-gray-800 bg-gray-100 hover:bg-red-300 rounded-lg focus:ring-2 focus:ring-gray-300 focus:outline-none"
             label={"Decline"}
+            handleClick={declineRequest}
           />
         </div>
       </Alert>

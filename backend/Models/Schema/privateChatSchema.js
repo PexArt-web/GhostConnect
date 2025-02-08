@@ -1,27 +1,34 @@
-const mongoose = require('mongoose');
-const Schema = mongoose.Schema
+const mongoose = require("mongoose");
+const Schema = mongoose.Schema;
 
-const chatSchema = new Schema({
-    sender:{
-        type: String
+const chatSchema = new Schema(
+  {
+    sender: {
+      type: String,
     },
-    content : {
-        type: String
+    content: {
+      type: String,
     },
     senderID: {
-        type: String
+      type: String,
     },
     recipientId: {
-        type: String
+      type: String,
     },
-    edited: { 
-        type: Boolean,
-        default: false
+    edited: {
+      type: Boolean,
+      default: false,
     },
+    // friendList: {
+    //   type: Array,
+    //   default: [],
+    // },
     // user_id:{
     //     type: String,
     //     required: true
     // }
-}, {timestamps : true})
+  },
+  { timestamps: true }
+);
 
-module.exports = chatSchema
+module.exports = chatSchema;

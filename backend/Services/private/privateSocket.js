@@ -1,5 +1,6 @@
 const { default: mongoose } = require("mongoose");
 const pc = require("../../Models/Blueprint/privateChatModel");
+const User = require("../../Models/Blueprint/userModel")
 // const socketAuth = require("../../Middleware/socketAuth");
 const date = new Date();
 
@@ -130,10 +131,15 @@ const privateChats = (socket, io) => {
 
 
   //<--Friend Request handle-->
-  socket.on("sendFriendRequest", ({ id, username }) => {
+  socket.on("sendFriendRequest", async ({ id, username }) => {
     log(id , username + " friend request");
     const recipientSocket = userID[id];
     if (!recipientSocket) return;
+    try {
+      const saveToDatabase = await User.save({})
+    } catch (error) {
+      
+    }
     io.to(recipientSocket).emit("friendRequest", { id, username });
   })
   //<--Socket Disconnections-->

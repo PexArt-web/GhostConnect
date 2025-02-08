@@ -70,6 +70,23 @@ const LobbyLayout = () => {
     "requestNotification",
     "after lobby layout effect"
   );
+  console.log(user, "from user lobby layout");
+
+  const acceptFriendRequest = (request) => {
+    // Accept friend request
+    alert("Request accepted");
+    console.log("Accept friend request", request.id + request.username);
+    // Update friend requests state
+    // setFriendRequests(friendRequests.filter((request) => request.id!== id));
+  };
+
+  const declineFriendRequest = (request) => {
+    // Decline friend request
+    alert("Request declined");
+    console.log("Decline friend request", request.id + request.username);
+    // Update friend requests state
+    // setFriendRequests(friendRequests.filter((request) => request.id!== id));
+  };
 
   return (
     <div className="flex h-screen">
@@ -119,15 +136,17 @@ const LobbyLayout = () => {
                       key={index}
                       className="flex justify-between items-center mb-2 last:mb-0"
                     >
-                      <span>{request.username}</span>
+                      <span>{request?.username}</span>
                       <SharedButton
                         className="text-sm bg-blue-500 hover:bg-blue-600 text-white py-1 px-2 rounded"
                         label={"Accept"}
+                        handleClick={() => acceptFriendRequest(request)}
                       />
 
                       <SharedButton
                         className="text-sm bg-red-500 hover:bg-red-600 text-white py-1 px-2 rounded"
                         label={"Decline"}
+                        handleClick={() => declineFriendRequest(request)}
                       />
                     </li>
                   ))}
@@ -146,11 +165,13 @@ const LobbyLayout = () => {
                 <span className="font-bold text-blue-500 animate-pulse">
                   {friendRequests.length > 0
                     ? friendRequests[0].username
-                    : "Someone"}
+                    : "User"}
                 </span>
               </span>
             }
             button={true}
+            acceptRequest={()=>acceptFriendRequest(friendRequests[0])}
+            declineRequest={()=>declineFriendRequest(friendRequests[0])}
             openNotification={requestNotification}
             onClose={() => setRequestNotification(false)}
           />
@@ -180,12 +201,13 @@ const LobbyLayout = () => {
               <span className="font-bold text-blue-500 animate-pulse">
                 {friendRequests.length > 0
                   ? friendRequests[0].username
-                  : "Someone"}
+                  : "User"}
               </span>
-          
             </span>
           }
           button={true}
+          acceptRequest={()=>acceptFriendRequest(friendRequests[0])}
+          declineRequest={()=>declineFriendRequest(friendRequests[0])}
           openNotification={requestNotification}
           onClose={() => setRequestNotification(false)}
         />
@@ -205,25 +227,39 @@ const LobbyLayout = () => {
           />
 
           {isFriendRequestOpen && (
-            <div className="absolute top-full right-0 mt-2 w-64 bg-white text-black rounded shadow-lg p-4 z-20">
-              <h3 className="text-lg font-semibold mb-2">Friend Requests</h3>
+            <div className="absolute top-full right-0 mt-2 w-72 max-w-[90vw] bg-white text-black rounded-lg shadow-lg p-4 z-20">
+              <h3 className="text-lg font-semibold mb-3 text-gray-800">
+                Friend Requests
+              </h3>
               {friendRequests.length > 0 ? (
-                <ul>
+                <ul className="space-y-3">
                   {friendRequests.map((request, index) => (
                     <li
                       key={index}
-                      className="flex justify-between items-center mb-2 last:mb-0"
+                      className="flex justify-between items-center gap-3 p-3 bg-gray-100 rounded-lg shadow-sm"
                     >
-                      <span>{request.username}</span>
-                      <SharedButton
-                        className="text-sm bg-blue-500 hover:bg-blue-600 text-white py-1 px-2 rounded"
-                        label={"Accept"}
-                      />
+                      <span className="font-medium text-gray-700 truncate">
+                        {request.username}
+                      </span>
+                      <div className="flex gap-2">
+                        <SharedButton
+                          className="text-xs sm:text-sm bg-blue-500 hover:bg-blue-600 text-white py-1 px-3 rounded-md transition"
+                          label="Accept"
+                          handleClick={() => acceptFriendRequest(request)}
+                        />
+                        <SharedButton
+                          className="text-xs sm:text-sm bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded-md transition"
+                          label="Decline"
+                          handleClick={() => declineFriendRequest(request)}
+                        />
+                      </div>
                     </li>
                   ))}
                 </ul>
               ) : (
-                <p>No new friend requests.</p>
+                <p className="text-gray-600 text-sm text-center">
+                  No new friend requests.
+                </p>
               )}
             </div>
           )}
