@@ -28,19 +28,16 @@ const userSchema = new Schema(
     },
     loginAttempts: { type: Number, default: 0 },
     lockUntil: { type: Date, default: null },
-  },
-  {
-    friendList:{
+    friendList: {
       type: Array,
       default: [],
-    }
-  },
-  {
-    friendRequestList:{
+    },
+    friendRequestList: {
       type: Array,
       default: [],
-    }
+    },
   },
+
   { timestamps: true }
 );
 

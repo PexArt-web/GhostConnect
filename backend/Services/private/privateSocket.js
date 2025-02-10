@@ -1,6 +1,6 @@
 const { default: mongoose } = require("mongoose");
 const pc = require("../../Models/Blueprint/privateChatModel");
-const User = require("../../Models/Blueprint/userModel")
+const User = require("../../Models/Blueprint/userModel");
 // const socketAuth = require("../../Middleware/socketAuth");
 const date = new Date();
 
@@ -15,9 +15,13 @@ function emitActiveUsersDetails(io) {
 }
 // for disconnected users
 
-function emitInActiveUsers(io){
+function emitInActiveUsers(io) {
   const inActiveUser = Object.keys(users).length;
-  const disconnectedUserRegistry = { userCount: inActiveUser, userList: users, status: "InActive" };
+  const disconnectedUserRegistry = {
+    userCount: inActiveUser,
+    userList: users,
+    status: "InActive",
+  };
   io.emit("disconnectedUsers", disconnectedUserRegistry);
   console.log(disconnectedUserRegistry, "query disconnected users");
 }
@@ -29,8 +33,6 @@ const privateChats = (socket, io) => {
     //<--Active Users count & User List  -->
     emitActiveUsersDetails(io);
   });
-
-
 
   socket.on(
     "sendMessage",
@@ -129,26 +131,36 @@ const privateChats = (socket, io) => {
   });
   //
 
-
-  //<--Friend Request handle-->
+  //<--Friend Request Operations-->
   socket.on("sendFriendRequest", async ({ id, username }) => {
-    log(id , username + " friend request");
+    log(id, username + " friend request");
     const recipientSocket = userID[id];
     if (!recipientSocket) return;
     try {
-      const saveToDatabase = await User.save({})
+      const FriendRequestList = { id, username };
+      const saveToDatabase = await User.findOneAndUpdate(
+        { uniqueID: id },
+        { $push: { friendRequestList: FriendRequestList } }
+      );
+      if (saveToDatabase) {
+        log("friendRequestList saved to database");
+        }
+      if (!saveToDatabase) return;
     } catch (error) {
-      
+      log(error + error.message, " error saving friend request");
     }
     io.to(recipientSocket).emit("friendRequest", { id, username });
-  })
+  });
+
+  //<--Friend Request Operation Ends Here-->
+
   //<--Socket Disconnections-->
   socket.on("disconnect", () => {
     log("Disconnected");
     const removeUserId = Object.keys(userID).find(
       (index) => userID[index] === socket.id
     );
-    // const removeActivity = 
+    // const removeActivity =
     const username = users[removeUserId];
     const date = new Date();
     if (removeUserId) {
@@ -157,7 +169,7 @@ const privateChats = (socket, io) => {
       // io.emit("lastSeen", { username, lastSeen: date.toUTCString() });
       log(`${username} is offline at ${date.toUTCString()}`);
       //<--Active Users count & User List  -->
-      emitInActiveUsers(io)
+      emitInActiveUsers(io);
       emitActiveUsersDetails(io);
     }
   });
