@@ -71,19 +71,28 @@ const LobbyLayout = () => {
     "after lobby layout effect"
   );
   console.log(user, "from user lobby layout");
+  
 
   const acceptFriendRequest = (request) => {
     // Accept friend request
-    alert("Request accepted");
-    console.log("Accept friend request", request.id + request.username);
+    socket.emit("acceptFriendRequest", {id: userID, requestedUserId: request.requestedUserId});
     // Update friend requests state
     // setFriendRequests(friendRequests.filter((request) => request.id!== id));
   };
 
+  // const acceptFriendRequest = (requs) => {
+  //   socket.emit("acceptFriendRequest", {id, username , requestedUserId});
+  //   setFriends((prev) => [...prev, { id, username}]);
+  //   // setShowAlert(true);
+  // };
+
   const declineFriendRequest = (request) => {
     // Decline friend request
     alert("Request declined");
-    console.log("Decline friend request", request.id + request.username);
+    console.log(
+      "Decline friend request",
+      request.requestedUserId + request.requestedUserUsername
+    );
     // Update friend requests state
     // setFriendRequests(friendRequests.filter((request) => request.id!== id));
   };
@@ -136,7 +145,7 @@ const LobbyLayout = () => {
                       key={index}
                       className="flex justify-between items-center mb-2 last:mb-0"
                     >
-                      <span>{request?.username}</span>
+                      <span>{request?.requestedUserUsername}</span>
                       <SharedButton
                         className="text-sm bg-blue-500 hover:bg-blue-600 text-white py-1 px-2 rounded"
                         label={"Accept"}
@@ -164,14 +173,14 @@ const LobbyLayout = () => {
                 You have a new friend request from{" "}
                 <span className="font-bold text-blue-500 animate-pulse">
                   {friendRequests.length > 0
-                    ? friendRequests[0].username
+                    ? friendRequests[0].requestedUserUsername
                     : "User"}
                 </span>
               </span>
             }
             button={true}
-            acceptRequest={()=>acceptFriendRequest(friendRequests[0])}
-            declineRequest={()=>declineFriendRequest(friendRequests[0])}
+            acceptRequest={() => acceptFriendRequest(friendRequests[0])}
+            declineRequest={() => declineFriendRequest(friendRequests[0])}
             openNotification={requestNotification}
             onClose={() => setRequestNotification(false)}
           />
@@ -200,14 +209,14 @@ const LobbyLayout = () => {
               You have a new friend request from{" "}
               <span className="font-bold text-blue-500 animate-pulse">
                 {friendRequests.length > 0
-                  ? friendRequests[0].username
+                  ? friendRequests[0].requestedUserUsername
                   : "User"}
               </span>
             </span>
           }
           button={true}
-          acceptRequest={()=>acceptFriendRequest(friendRequests[0])}
-          declineRequest={()=>declineFriendRequest(friendRequests[0])}
+          acceptRequest={() => acceptFriendRequest(friendRequests[0])}
+          declineRequest={() => declineFriendRequest(friendRequests[0])}
           openNotification={requestNotification}
           onClose={() => setRequestNotification(false)}
         />
@@ -239,7 +248,7 @@ const LobbyLayout = () => {
                       className="flex justify-between items-center gap-3 p-3 bg-gray-100 rounded-lg shadow-sm"
                     >
                       <span className="font-medium text-gray-700 truncate">
-                        {request.username}
+                        {request.requestedUserUsername}
                       </span>
                       <div className="flex gap-2">
                         <SharedButton

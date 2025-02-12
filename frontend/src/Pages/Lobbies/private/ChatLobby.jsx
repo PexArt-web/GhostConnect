@@ -35,20 +35,21 @@ const ChatLobby = () => {
     localStorage.setItem("selectedUser", userDetails);
   };
 
-  const handleAddFriend = (id, username) => {
+  const requestedUserId = userID;
+  const handleSendRequest = (id, username) => {
     if (!id || !username) return;
-    socket.emit("sendFriendRequest", { id, username });
-    // // if (!friends.find((friend) => friend.id === id)) {
-    // //   const isOnline = !!users[id]
-    // //   setFriends((prev) => [...prev, { id, username, isOnline }]);
-    // // }
-    setRequestNotification(true);
+    if (!friends.find((friend) => friend.id === id)) {
+      socket.emit("sendFriendRequest", { id, username, requestedUserId });
+      
+      setRequestNotification(true);
+    }
   };
-
-  // const handleAcceptFriendRequest = (id) => {
-  //   socket.emit("acceptFriendRequest", id);
-  //   setFriendRequestList((prev) => prev.filter((req) => req.id!== id));
-  //   setShowAlert(true);
+  
+  // const isOnline = !!users[id]
+  // const acceptFriendRequest = (id, username) => {
+  //   socket.emit("acceptFriendRequest", {id, username , requestedUserId});
+  //   setFriends((prev) => [...prev, { id, username}]);
+  //   // setShowAlert(true);
   // };
 
   function closeNotification() {
@@ -77,7 +78,7 @@ const ChatLobby = () => {
         button={false}
         openNotification={requestNotification}
       />
-      
+
       <h1 className="text-3xl font-semibold mb-4 text-center">Chat Lobby</h1>
       <p className="text-gray-300 mb-6 text-center">
         Search for users to add as friends or start a private chat.
@@ -117,8 +118,8 @@ const ChatLobby = () => {
                 </div>
 
                 <SharedButton
-                  className={"text-green-400 hover:text-green-500"}
-                  handleClick={() => handleAddFriend(id, username)}
+                  className={`text-green-400 hover:text-green-500 ${friends.includes(searchQuery) ? "hidden" : "block"}`}
+                  handleClick={() => handleSendRequest(id, username)}
                   label={<FiPlus size={20} />}
                 />
               </div>

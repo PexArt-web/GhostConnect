@@ -22,12 +22,14 @@ const loginUser = async (req, res) => {
   try {
     const user = await login(username, email, password);
     const token = createToken(user._id);
-    res.status(200).json({
-      email: user.email,
-      username: user.username,
-      token: token,
-      ID: user.uniqueID,
-    });
+    res
+      .status(200)
+      .json({
+        email: user.email,
+        username: user.username,
+        token: token,
+        ID: user.uniqueID,
+      });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }

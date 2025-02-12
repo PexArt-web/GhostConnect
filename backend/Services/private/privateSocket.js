@@ -132,25 +132,83 @@ const privateChats = (socket, io) => {
   //
 
   //<--Friend Request Operations-->
-  socket.on("sendFriendRequest", async ({ id, username }) => {
+  socket.on("sendFriendRequest", async ({ id, username, requestedUserId }) => {
     log(id, username + " friend request");
     const recipientSocket = userID[id];
     if (!recipientSocket) return;
+    const requestedUserUsername = users[requestedUserId];
+    log(requestedUserUsername, "requestedUserUsername");
     try {
-      const FriendRequestList = { id, username };
+      const FriendRequestList = {
+        id: requestedUserId,
+        username: requestedUserUsername,
+      };
       const saveToDatabase = await User.findOneAndUpdate(
         { uniqueID: id },
         { $push: { friendRequestList: FriendRequestList } }
       );
       if (saveToDatabase) {
         log("friendRequestList saved to database");
-        }
+      }
       if (!saveToDatabase) return;
     } catch (error) {
       log(error + error.message, " error saving friend request");
     }
-    io.to(recipientSocket).emit("friendRequest", { id, username });
+    io.to(recipientSocket).emit("friendRequest", {
+      requestedUserId,
+      requestedUserUsername,
+    });
   });
+
+  //<--accept FriendRequest-->
+  socket.on("acceptFriendRequest", async ({ id, requestedUserId }) => {
+    const recipientSocket = userID[id];
+    const username = users[id]
+    const senderSocket = userID[requestedUserId]
+    const requestedUserUsername = users[requestedUserId];
+    
+    if (!recipientSocket) return;
+    if(!senderSocket) return;
+    if (!requestedUserUsername) return;
+    try {
+      const acceptFriendRequest = await User.findOneAndUpdate(
+        { uniqueID: id },
+        {
+          $push: {
+            friendList: {
+              uniqueID: requestedUserId,
+              username: requestedUserUsername,
+            },
+          },
+        }
+      );
+      const updateRequestIdFriendList = await User.findByIdAndUpdate(
+        { uniqueID: requestedUserId },
+        {
+          $push: {
+            friendList: { uniqueID: id, username: requestedUserUsername },
+          },
+        }
+      );
+      if (!acceptFriendRequest || !updateRequestIdFriendList) {
+        log(`Error! unable to accept request ${error.message}`);
+        return;
+      }
+   
+      io.to(recipientSocket).emit("friendRequestAccepted", {
+        id: requestedUserId,
+        username: requestedUserUsername,
+      });
+      io.to(senderSocket).emit("friendRequestAccepted", {
+        id: id,
+        username: username,
+      });
+      log(`${requestedUserUsername} has accepted ${username}'s friend request`);
+    } catch (error) {
+      log(`Error! unable to accept request ${error.message}`);
+    }
+  });
+  /////////////////////////////
 
   //<--Friend Request Operation Ends Here-->
 
