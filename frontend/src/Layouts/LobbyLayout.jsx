@@ -15,6 +15,7 @@ const LobbyLayout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isFriendRequestOpen, setIsFriendRequestOpen] = useState(false);
   const [friendRequests, setFriendRequests] = useState([]);
+  const [friend, setFriends] = useState([]);
   const [requestNotification, setRequestNotification] = useState(false);
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
   const toggleFriendRequest = () =>
@@ -57,14 +58,12 @@ const LobbyLayout = () => {
       setRequestNotification(true);
       setFriendRequests([requests]);
     });
-    console.log(friendRequests, "friendRequest from layout");
 
-    socket.on("friendRequestAccepted", ({id, username}) => {
-      alert("Request accepted");
-      console.log("Request accepted", id + username);
-      
-      // setFriendRequests(friendRequests.filter((request) => request.id!== id));
-    })
+    socket.on("friendRequestAccepted", ({ id, username, message }) => {
+      alert(message);
+      //update Friend List
+      setFriends((prev) => [...prev, { id: id, username: username }]);
+    });
     return () => {
       socket.off("connect");
       socket.off("userRecords");
@@ -78,20 +77,16 @@ const LobbyLayout = () => {
     "after lobby layout effect"
   );
   console.log(user, "from user lobby layout");
-  
 
   const acceptFriendRequest = (request) => {
     // Accept friend request
-    socket.emit("acceptFriendRequest", {id: userID, requestedUserId: request.requestedUserId});
+    socket.emit("acceptFriendRequest", {
+      id: userID,
+      requestedUserId: request.requestedUserId,
+    });
     // Update friend requests state
     // setFriendRequests(friendRequests.filter((request) => request.id!== id));
   };
-
-  // const acceptFriendRequest = (requs) => {
-  //   socket.emit("acceptFriendRequest", {id, username , requestedUserId});
-  //   setFriends((prev) => [...prev, { id, username}]);
-  //   // setShowAlert(true);
-  // };
 
   const declineFriendRequest = (request) => {
     // Decline friend request

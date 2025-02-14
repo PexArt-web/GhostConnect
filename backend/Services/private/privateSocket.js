@@ -163,12 +163,12 @@ const privateChats = (socket, io) => {
   //<--accept FriendRequest-->
   socket.on("acceptFriendRequest", async ({ id, requestedUserId }) => {
     const recipientSocket = userID[id];
-    const username = users[id]
-    const senderSocket = userID[requestedUserId]
+    const username = users[id];
+    const senderSocket = userID[requestedUserId];
     const requestedUserUsername = users[requestedUserId];
-    
+
     if (!recipientSocket) return;
-    if(!senderSocket) return;
+    if (!senderSocket) return;
     if (!requestedUserUsername) return;
     try {
       const acceptFriendRequest = await User.findOneAndUpdate(
@@ -194,14 +194,16 @@ const privateChats = (socket, io) => {
         log(`Error! unable to accept request from condition ${error.message}`);
         return;
       }
-   
+
       io.to(recipientSocket).emit("friendRequestAccepted", {
         id: requestedUserId,
         username: requestedUserUsername,
+      message: `${requestedUserUsername} has been added to your friend List`,
       });
       io.to(senderSocket).emit("friendRequestAccepted", {
         id: id,
         username: username,
+      message: `${username} has accepted your friend request and your friend list have been updated`,
       });
       log(`${username} has accepted ${requestedUserUsername}'s friend request`);
     } catch (error) {
