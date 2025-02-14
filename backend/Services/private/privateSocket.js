@@ -182,7 +182,7 @@ const privateChats = (socket, io) => {
           },
         }
       );
-      const updateRequestIdFriendList = await User.findByIdAndUpdate(
+      const updateRequestIdFriendList = await User.findOneAndUpdate(
         { uniqueID: requestedUserId },
         {
           $push: {
@@ -190,8 +190,8 @@ const privateChats = (socket, io) => {
           },
         }
       );
-      if (!acceptFriendRequest || !updateRequestIdFriendList) {
-        log(`Error! unable to accept request ${error.message}`);
+      if (!acceptFriendRequest && !updateRequestIdFriendList) {
+        log(`Error! unable to accept request from condition ${error.message}`);
         return;
       }
    
@@ -203,9 +203,9 @@ const privateChats = (socket, io) => {
         id: id,
         username: username,
       });
-      log(`${requestedUserUsername} has accepted ${username}'s friend request`);
+      log(`${username} has accepted ${requestedUserUsername}'s friend request`);
     } catch (error) {
-      log(`Error! unable to accept request ${error.message}`);
+      log(`Error! unable to accept request from try ${error.message}`);
     }
   });
   /////////////////////////////

@@ -59,10 +59,17 @@ const LobbyLayout = () => {
     });
     console.log(friendRequests, "friendRequest from layout");
 
+    socket.on("friendRequestAccepted", ({id, username}) => {
+      alert("Request accepted");
+      console.log("Request accepted", id + username);
+      
+      // setFriendRequests(friendRequests.filter((request) => request.id!== id));
+    })
     return () => {
       socket.off("connect");
       socket.off("userRecords");
       socket.off("friendRequest");
+      socket.off("friendRequestAccepted");
     };
   }, [userID, username, requestNotification, friendRequests]);
   console.log(
