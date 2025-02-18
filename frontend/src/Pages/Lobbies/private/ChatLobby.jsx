@@ -4,13 +4,15 @@ import SharedAlert from "@/shared/component/SharedAlert";
 import SharedAvatar from "@/shared/component/SharedAvatar";
 import SharedButton from "@/shared/component/SharedButton";
 import SharedInput from "@/shared/component/SharedInput";
-import { useEffect, useState } from "react";
+import SuspenseFallback from "@/shared/component/SuspenseFallback";
+import { Suspense, useEffect, useState } from "react";
 import { FiPlus } from "react-icons/fi";
-import { useNavigate, useOutletContext } from "react-router-dom";
+import { Await, useLoaderData, useNavigate, useOutletContext } from "react-router-dom";
 
 const ChatLobby = () => {
   requireAuth();
   const navigate = useNavigate();
+  const loaderData = useLoaderData();
   const [selectedUser, setSelectedUser] = useState(null);
   const [friends, setFriends] = useState([]);
   // const [friendRequestList, setFriendRequestList] = useState([]);
@@ -46,11 +48,7 @@ const ChatLobby = () => {
   };
   
   // const isOnline = !!users[id]
-  // const acceptFriendRequest = (id, username) => {
-  //   socket.emit("acceptFriendRequest", {id, username , requestedUserId});
-  //   setFriends((prev) => [...prev, { id, username}]);
-  //   // setShowAlert(true);
-  // };
+  // const isFriend = friends.find((friend) => friend.id === id)
 
   function closeNotification() {
     if (requestNotification) {
@@ -69,6 +67,8 @@ const ChatLobby = () => {
     username.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  console.log(friends, "friends");
+  console.log(loaderData, "friendList");
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-800 text-white px-6">
       {/* alert component */}
@@ -139,6 +139,16 @@ const ChatLobby = () => {
         <h2 className="text-xl font-semibold mb-4">Friend List</h2>
         {friends.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Suspense fallback={<SuspenseFallback/>}>
+              <Await resolve={loaderData.friendList}>
+                {(resolvedData) => {
+                  setFriends(resolvedData);
+                  console.log(resolvedData, "friendList");
+                  console.log(friends, "friends");
+                  // return {friends};
+                }}
+              </Await>
+            </Suspense>
             {friends.map(({ id, username, isOnline }) => (
               <div
                 key={id}

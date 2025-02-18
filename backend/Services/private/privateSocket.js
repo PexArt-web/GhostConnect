@@ -186,7 +186,7 @@ const privateChats = (socket, io) => {
         { uniqueID: requestedUserId },
         {
           $push: {
-            friendList: { uniqueID: id, username: requestedUserUsername },
+            friendList: { uniqueID: id, username: username },
           },
         }
       );
@@ -198,12 +198,12 @@ const privateChats = (socket, io) => {
       io.to(recipientSocket).emit("friendRequestAccepted", {
         id: requestedUserId,
         username: requestedUserUsername,
-      message: `${requestedUserUsername} has been added to your friend List`,
+        message: `${requestedUserUsername} has been added to your friend List`,
       });
       io.to(senderSocket).emit("friendRequestAccepted", {
         id: id,
         username: username,
-      message: `${username} has accepted your friend request and your friend list have been updated`,
+        message: `${username} has accepted your friend request and your friend list have been updated`,
       });
       log(`${username} has accepted ${requestedUserUsername}'s friend request`);
     } catch (error) {

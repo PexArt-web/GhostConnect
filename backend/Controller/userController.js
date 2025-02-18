@@ -39,7 +39,7 @@ const friendRequestList = async (req, res) => {
   const { userId } = req.body;
   try {
     const friendRequestList = await User.find({
-      uniqueID: "a5a0d900-8de5-471a-a144-a0e406387ae5",
+      uniqueID: "fba58610-7485-4887-9a75-4e07d3da1f44",
     }).select("friendRequestList");
     if (!friendRequestList) {
       throw Error("No friend requests found");
@@ -51,8 +51,25 @@ const friendRequestList = async (req, res) => {
   }
 };
 
+const friendList = async (req, res) => {
+  const { userId } = req.body;
+  try {
+    const friendList = await User.find({
+      uniqueID: "fba58610-7485-4887-9a75-4e07d3da1f44",
+    }).select("friendList");
+    if (!friendList) {
+      throw Error("No friends found");
+    }
+    log(friendList, "friendList node");
+    res.status(200).json(friendList);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+}
+
 module.exports = {
   signupUser,
   loginUser,
   friendRequestList,
+  friendList,
 };

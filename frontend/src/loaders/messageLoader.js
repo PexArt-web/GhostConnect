@@ -11,7 +11,8 @@ export const messageLoader = () => {
   return defer({ getMessage });
 };
 
-export const privateMessageLoader = async () => {
+export const privateMessageLoader = () => {
+  requireAuth();
   const getChats = fetchPrivateChats();
   return defer({ getChats });
 };

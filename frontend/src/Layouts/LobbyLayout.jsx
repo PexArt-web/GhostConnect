@@ -2,7 +2,7 @@ import { useAuthContext } from "@/hooks/useAuthContext";
 import SharedButton from "@/shared/component/SharedButton";
 import { logoutService } from "@/services/Auth/logoutService";
 import { requireAuth } from "@/services/Auth/middleware/requireAuth";
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet, useLoaderData, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { clientSocket, socket } from "@/services/weBSocket";
 import { FiUserPlus } from "react-icons/fi";
@@ -98,6 +98,7 @@ const LobbyLayout = () => {
     // Update friend requests state
     // setFriendRequests(friendRequests.filter((request) => request.id!== id));
   };
+
 
   return (
     <div className="flex h-screen">

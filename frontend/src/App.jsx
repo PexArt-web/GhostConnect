@@ -17,6 +17,7 @@ import { loginAction } from "./handlers/Auth/loginAction";
 import { signupAction } from "./handlers/Auth/signupAction";
 import { messageLoader, privateMessageLoader } from "./loaders/messageLoader";
 import pageLoadError from "./pages/Errors/PageLoadError";
+import { friendListLoader } from "./loaders/userLoader";
 function App() {
   const router = createBrowserRouter(
     createRoutesFromElements(
@@ -24,7 +25,7 @@ function App() {
         <Route index element={<Splash />} />
         <Route path="get-started" action={signupAction} element={<Signup />} />
         <Route path="/login" action={loginAction} element={<Login />} />
-        <Route path="lobby-layout" element={<LobbyLayout />}>
+        <Route path="lobby-layout" loader = {friendListLoader} element={<LobbyLayout />}>
           <Route path="private-chat-lobby" element={<ChatLobby />} />
           <Route path="private-chat" element={<MainChat />} loader={privateMessageLoader} errorElement = {pageLoadError} />
           <Route path="group-chat-lobby" element={<GroupLobby />} />
